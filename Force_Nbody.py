@@ -26,3 +26,17 @@ class Particle:
                 print(rr)
         self.acc*=const_G
         return
+
+if __name__=="__main__":
+    p_array=[]
+    pp=np.array([0,0,0])
+    vv=np.array([0,0,0])
+    aa=np.array([0,0,0])
+    p_array.append(Particle(1,pp,vv,aa,0))
+    pp=np.array([1,0,0])
+    p_array.append(Particle(1,pp,vv,aa,1))
+    pp=np.array([0,1,0])
+    p_array.append(Particle(1,pp,vv,aa,2))
+    p_array=np.array(p_array)
+    p_array[1].cal_gforce(p_array)
+    print(p_array[1].acc)
