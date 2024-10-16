@@ -9,79 +9,76 @@ Original file is located at
 
 import numpy as np
 from scipy.stats import truncnorm
-import matplotlib.pyplot as plt
 import pint
-ureg = pint.UnitRegistry()
 
-# Constants
+ureg = pint.UnitRegistry()
 ureg.define('solar_mass = 1.98847e30 * kilogram')
-k_B = 1.380649e-23 *(ureg.J/ureg.K) # Boltzmann constant in J/K
-k_B = k_B.to(ureg. solar_mass*ureg. kpc**2/( ureg.year**2*ureg.K)) #Boltzman constant in our desirable units
 
 #generating the boundry size
-#This size also depends on the phase of galaxy formation,
-#but we tried to choose the aprroximate maximum possible size of a primordial galaxy formaing gas cloud
-boundary_size = 100*ureg.kpc
 
-#typical temperature in a primordial galaxy forming environment
-#This can vary between 10K to 10^7K depending on the phase of galaxy formation
-#Here we assume that we are still in the pre-collapse phase, so we have:
-T = 10*ureg.K
 
-#typical rotating speed in a primordial galaxy forming environment
-velocity_typical = 100*(ureg.km/ureg.s)
-velocity_typical = velocity_typical.to(ureg.kpc/ureg.year)
+def velocity_ini(N, T):
+    k_B = 1.380649e-23 *(ureg.J/ureg.K) # Boltzmann constant in J/K
+    k_B = k_B.to(ureg. solar_mass*ureg. kpc**2/( ureg.year**2*ureg.K)) #Boltzman constant in our desirable units
+    
+    #typical temperature in a primordial galaxy forming environment
+    #This can vary between 10K to 10^7K depending on the phase of galaxy formation
+    #Here we assume that we are still in the pre-collapse phase, so we have:
+    # Constants
 
-N =1000 #number of particles
-M = np.ones ((N, 1)) ##generating the mass of particles, each particle has a mass equal to solar_mass
+    T = T*ureg.K
 
-# Velocity dispersion (standard deviation of the velocity components)
-sigma_v = np.sqrt(k_B * T/ ureg.solar_mass)
-sigma_v = sigma_v.to(ureg.kpc/ureg.year)
+    # Velocity dispersion (standard deviation of the velocity components)
+    sigma_v = np.sqrt(k_B * T/ ureg.solar_mass)
+    sigma_v = sigma_v.to(ureg.kpc/ureg.year)
 
-# Generate Maxwell-Boltzmann velocities for each particle
-# velocity of each particle in xyz coordinates, the result is in the shape of (N, 3)
-velocities = np.random.normal(0, sigma_v.magnitude, (N, 3))
+    # Generate Maxwell-Boltzmann velocities for each particle
+    # velocity of each particle in xyz coordinates, the result is in the shape of (N, 3)
+    velocities = np.random.normal(0, sigma_v.magnitude, (N, 3))
 
-#Generate random gaussian positions for each particle
+    return velocities
+
+
+#Generate random gaussian positions for each particle with units
 def position_ini(N, bound, mu, sigma):
-  bound = bound.to('kpc').magnitude
-  a = 0 # lower truncated bound
-  b = (bound - mu) / sigma #upper truncated bound
-  x = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-  y = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-  z = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-  pos = np.column_stack((x, y, z))
-  return pos
+    bound = bound.to('kpc').magnitude
+    a = 0 # lower truncated bound
+    b = (bound - mu) / sigma #upper truncated bound
+    x = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
+    y = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
+    z = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
+    pos = np.column_stack((x, y, z))
 
-#calling the position_ini funtion to generate the location of each particle in xyz coordinates,
-#the result is in the shape of (N, 3)
-positions = position_ini(N=1000, bound = boundary_size, mu = 50, sigma = 50)  #boundary_size = boundary_size.to('kpc').magnitude
+    return pos
+
 
 #Now, we make a class to store all of these initial conditions (mass, positions, velocities)
-class Particles:
-    def __init__(self, position, velocity, mass):
-        self.position = position
-        self.velocity = velocity
-        self.mass = mass
+class Particles_ini:
+    def __init__(self, n=100, boundary_size=100, mu=50, sigma_pos=50, T=10):
+        #calling the position_ini funtion to generate the location of each particle in xyz coordinates,
+        #the result is in the shape of (N, 3)
+        #This size also depends on the phase of galaxy formation,
+        #but we tried to choose the aprroximate maximum possible size of a primordial galaxy formaing gas cloud
+        self.position = position_ini(N=n, bound=boundary_size*ureg.kpc, mu=mu, sigma=sigma_pos)
+        self.velocity = velocity_ini(N=n, T=T)
+        self.mass = np.ones(n) * ureg.solar_mass.magnitude
+
     def __getitem__(self, index):
         return {
             'position': self.position[index],
             'velocity': self.velocity[index],
             'mass': self.mass[index] if not np.isscalar(self.mass) else self.mass
         }
-#calling the "Particles" class
-particles = Particles(positions, velocities, M)
+
 
 #Now we make a function to keep every particle inside the defined boundary
 #This needs to be run everytime positions are updated
 def boundary_cond(particles):
-   #reverse if out-of-bound
+    #reverse if out-of-bound
     particles_in = [] #inside the boundary
     boundary_size = 100
     for particle in particles:
-        pos_1 = particle.position.to('kpc').magnitude  #change the unit scale
-        if np.all(np.abs(pos_1) < boundary_size / 2):
+        if np.all(np.abs(particle.position) < boundary_size / 2):
             particles_in.append(particle)
         else:
             particle.velocity *= -1
