@@ -1,7 +1,7 @@
 #calculate gravitational force between particles
 import numpy as np
 
-const_G=4.3*10**(-3) # in the unit of (pc / solar mass^-1 * (km/s)^2)
+const_G=4.3*10**(-6) # in the unit of (kpc / solar mass^-1 * (km/s)^2)
 
 
 class Particle:
@@ -57,27 +57,31 @@ class Particle:
         """
         self.time = new_time
     
-    def cal_gforce(self, p_array):
-        """
-        Calculates the gravitational acceleration on the particle 
-        due to other particles in the array.
+def cal_gforce(position, mass):
+    """
+    Calculates the gravitational acceleration on the particle 
+    due to other particles in the array.
 
-        For each particle other than itself, the function calculates 
-        the relative position and computes the gravitational force, 
-        updating the acceleration of the particle accordingly.
+    For each particle other than itself, the function calculates 
+    the relative position and computes the gravitational force, 
+    updating the acceleration of the particle accordingly.
 
-        Parameters:
-        p_array : list
-            A list of Particle objects that represent other particles in the simulation.
-        """
-        self.acc = np.zeros(3)  # Reset acceleration to zero
-        for i in range(len(p_array)):
-            if i != self.seq:  # Skip self to avoid self-interaction
-                del_pos = np.array(p_array[i].position - self.position)  # Calculate relative position
+    Parameters:
+    p_array : list
+        A list of Particle objects that represent other particles in the simulation.
+    """
+    acc = np.zeros_like(position)
+    
+    for i in range(len(position)):
+        for j in range(len(position)):
+            if i != j:  # Skip self to avoid self-interaction
+                del_pos = np.array(position[j] - position[i])  # Calculate relative position
                 rr = np.sqrt(np.sum(del_pos**2))  # Calculate the distance from the particle
-                self.acc += p_array[i].mass * del_pos / rr**3  # Update acceleration based on gravitational force
+                acc[i] += mass[j] * del_pos / rr**3  # Update acceleration based on gravitational force
+    
+    acc *= const_G
 
-        self.acc *= const_G  # Scale the acceleration by the gravitational constant
+    return acc
 
 
 
