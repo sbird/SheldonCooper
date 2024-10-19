@@ -1,16 +1,12 @@
 
-import numpy as np
 from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.colors import cnames
 from matplotlib import animation
+import numpy as np
 from scipy.stats import truncnorm
 
 
 
-def visualization(position):
-
-
+def visualization(position, lim_bound=(0, 100)):
     # Set up figure & 3D axis for animation
     fig = plt.figure()
     ax = fig.add_axes([0, 0, 1, 1], projection='3d')
@@ -20,16 +16,11 @@ def visualization(position):
     num_particles = position.shape[0]
     colors = plt.cm.jet(np.linspace(0, 1, num_particles))
 
-    # randomly select 10% of the particles for drawing lines
-    random_indices = np.random.choice(num_particles, size=int(0.1 * num_particles), replace=False)
-    # set up lines and points
-    # we need to pick 10% of the particles' trajectories to have the lines if we have large number of particles in the future
-    lines = sum([ax.plot([], [], [], '-', c=colors[i]) for i in random_indices], [])
-    
+    # set up lines and points for each particle
+    lines = sum([ax.plot([], [], [], '-', c=colors[i]) for i in range(num_particles)], [])
     pts = sum([ax.plot([], [], [], 'o', c=colors[i]) for i in range(num_particles)], [])
-    # prepare the axes limits
+
     ## change the axes limits to boundary size
-    lim_bound = (0,100)
     ax.set_xlim(lim_bound)
     ax.set_ylim(lim_bound)
     ax.set_zlim(lim_bound)
@@ -49,51 +40,53 @@ def visualization(position):
 
     # animation function.  This will be called sequentially with the frame number
     def animate(i):
-        # we'll step 1 time-steps per frame.
-        i = i % position.shape[1]
+        # Determine the range of timesteps to display with a window size
+        window_size = 10
+        start = max(0, i - window_size + 1)  # Starting index for the window
+        end = i + 1  # Ending index for the window
 
-        # Update lines for the 10% of particles
-        for line, idx in zip(lines, random_indices):
-            x, y, z = position[idx, :i].T
-            line.set_data(x, y)
-            line.set_3d_properties(z)
+        # Update the lines to show only the most recent timesteps for each particle
+        for line, idx in zip(lines, range(num_particles)):
+            x, y, z = position[idx, start:end].T  # Extract coordinates for the current window
+            line.set_data(x, y)  # Update line data for x and y
+            line.set_3d_properties(z)  # Update line data for z
 
-        # Update points for all particles
+        # Update the points for all particles to reflect their current position
         for pt, xi in zip(pts, position):
-            x, y, z = xi[i]
-            pt.set_data([x], [y])
-            pt.set_3d_properties([z])
+            x, y, z = xi[i]  # Get the current coordinates for the particle
+            pt.set_data([x], [y])  # Update point data for x and y
+            pt.set_3d_properties([z])  # Update point data for z
 
-        ax.view_init(30, 0.3 * i)
+        ax.view_init(30, 0.3 * i)  # Animate the viewpoint
         fig.canvas.draw()
+
         return lines + pts
 
     # instantiate the animator.
     anim = animation.FuncAnimation(fig, animate, init_func=init,
-                                frames=500, interval=30, blit=True)
+                                frames=position.shape[1], interval=300, blit=True)  # set interval to 300ms to see the trajectory clearly
 
     plt.show()
 
 
 def position_ini(N, bound, mu, sigma):
-  #bound = bound.to('kpc').magnitude
-  a = 0 # lower truncated bound
-  b = (bound - mu) / sigma #upper truncated bound
-  x = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-  y = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-  z = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-  pos = np.column_stack((x, y, z))
-  return pos
+    #bound = bound.to('kpc').magnitude
+    a = 0 # lower truncated bound
+    b = (bound - mu) / sigma #upper truncated bound
+    x = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
+    y = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
+    z = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
+    pos = np.column_stack((x, y, z))
+    return pos
 
 if __name__ == '__main__':
-# we generate a random initial position for 10 particles
-    pos_ini = position_ini(10, 100, 50, 50)
-
     # we generate the initial position 50 times to make 50 fake time steps
     step = 50
     n = 10
     position_matrix = np.empty((n, step, 3))
+
     for s in range(step):   # Iterate through each time step
-        pos_temp = position_ini(10, 100, 50, 50)
+        pos_temp = position_ini(N=n, bound=100, mu=50, sigma=50)
         position_matrix[:, s, :] = pos_temp
+
     visualization(position_matrix)
