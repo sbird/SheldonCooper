@@ -77,7 +77,7 @@ def cal_gforce(position, mass):
             if i != j:  # Skip self to avoid self-interaction
                 del_pos = np.array(position[j] - position[i])  # Calculate relative position
                 rr = np.sqrt(np.sum(del_pos**2))  # Calculate the distance from the particle
-                acc[i] += mass[j] * del_pos / rr**3  # Update acceleration based on gravitational force
+                acc[i] = acc[i] + mass[j] * del_pos / rr**3  # Update acceleration based on gravitational force
     
     acc *= const_G
 
