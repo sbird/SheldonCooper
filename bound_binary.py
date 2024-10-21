@@ -1,7 +1,7 @@
 # from initial_conditions_3d import Particles_ini
 from Force_Nbody import const_G
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import pint
 
 ureg = pint.UnitRegistry()
@@ -73,7 +73,7 @@ def center_of_mass(masses, positions):
     cm = np.dot(masses,positions)/np.sum(masses)
     return cm 
 
-print(center_of_mass(m,r))
+# print(center_of_mass(m,r))
 
 
 def total_energy(masses, positions, velocities):
@@ -88,11 +88,11 @@ def total_energy(masses, positions, velocities):
 
     U = -np.sum(const_G*masses[0]*masses[1]/rr)      # Calculate potential energy
     K = np.sum(0.5*masses*vv)                       # Calculate kinetic energy
-    print("potential energy:", U/const_G)
-    print("kinetic energy:", K)
+    # print("potential energy:", U/const_G)
+    # print("kinetic energy:", K)
 
     E = K + U                                       # Sum total energy
-    print(E)
+    # print(E)
     return E,rr
 
 print(total_energy(m,r,v))
@@ -105,10 +105,10 @@ def angular_momentum(masses,positions,velocities):
     r_cross_v = np.cross(positions, velocities)  
     L_arr = np.dot(masses,r_cross_v)
     L = np.sqrt(np.sum(L_arr**2))
-
+    # print(np.shape(L_arr),L_arr)
     return L_arr
 
-print(angular_momentum(m,r,v))
+# print(angular_momentum(m,r,v))
 
 
 def calculate_period(masses,positions,velocities):
@@ -120,7 +120,7 @@ def calculate_period(masses,positions,velocities):
     b = e*a
     return T,e,b
 
-print("Period", calculate_period(m,r,v))
+# print("Period", calculate_period(m,r,v))
 
 
 
@@ -129,11 +129,15 @@ print("Period", calculate_period(m,r,v))
 
 from sc_time_evolution import evolve_position, evolve_velocity
 from Force_Nbody import cal_gforce
-from sc_time_evolution import dt, T, step
+# from sc_time_evolution import dt, T, step
+
+dt = 0.1  # Time step in years
+T = 6060 # Total time in years
+step = int(T / dt)  # Number of steps
 
 #define intial condidtions
 energy_list = []
-angular_momementum_list = []
+angular_momentum_list = []
 relative_positions = []
 
 mass = m
@@ -141,29 +145,35 @@ position = r
 velocity = v
 
 for s in range(step):   # Iterate through each time step
-    energy, distance = total_energy(mass,position,velocity)
-    energy_list += [energy]
-    relative_positions += [distance]
-    ang_mom = angular_momentum(mass,position,velocity)
-    angular_momentum_list = [ang_mom]
 
+    if s%100==0:
+        energy, distance = total_energy(mass,position,velocity)
+        energy_list += [energy]
+        relative_positions += [distance]
+        ang_mom = angular_momentum(mass,position,velocity)
+        angular_momentum_list += [ang_mom]
 
     # Store current velocity, acceleration, and position for each particle at time step s
     acceleration = cal_gforce(position, m)
+    # print(acceleration)
 
     # Evolve velocity and position using the current state
     velocity_temp = evolve_velocity(velocity, acceleration)          # Update velocity
     position = evolve_position(position, velocity)             # Update position based on the current velocity
+    # print("pos,vel:",velocity_temp,position)
     velocity = velocity_temp
 
 fig,axes = plt.subplots(1,3,figsize=(15,5))
-time = np.linspace(1,100,100)
+time=np.array([i for i in range(len(energy_list))])
 
 ax = axes[0]
 ax.plot(time,energy_list)
 
+angular_momentum_list = np.array(angular_momentum_list)
 ax = axes[1]
-ax.plot(time,angular_momementum_list[:,2])
+ax.plot(time,angular_momentum_list[:,2])
 
 ax = axes[2]
 ax.plot(time,relative_positions)
+
+plt.savefig("binary_conserved.png")
