@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import pint
 
 ureg = pint.UnitRegistry()
+print(const_G)
 
 
 #generating the boundry size
@@ -62,7 +63,7 @@ class Particles:
 
 # particles = Particles_ini(position=xyz,velocity=v,mass=M)
 
-m = np.array([1,1])
+m = np.array([2,2])
 r = np.array([[0,0,0],[1,0,0]])
 v = np.array([[0,1,0],[0,-1,0]])
 
@@ -84,7 +85,7 @@ def total_energy(masses, positions, velocities):
     rr = np.sqrt(np.sum(del_pos**2))                # Calculate the distance from the particle
     vv = np.sum(velocities**2, axis=1)              # Calculate the magnitude of velocity for each particle
 
-    const_G = 1
+    # const_G = 1
 
     U = -np.sum(const_G*masses[0]*masses[1]/rr)      # Calculate potential energy
     K = np.sum(0.5*masses*vv)                       # Calculate kinetic energy
@@ -129,11 +130,11 @@ def calculate_period(masses,positions,velocities):
 
 from sc_time_evolution import evolve_position, evolve_velocity
 from Force_Nbody import cal_gforce
-# from sc_time_evolution import dt, T, step
+from sc_time_evolution import dt, T, step
 
-dt = 0.1  # Time step in years
-T = 6060 # Total time in years
-step = int(T / dt)  # Number of steps
+#dt = 0.1  # Time step in years
+#T = 6060 # Total time in years
+#step = int(T / dt)  # Number of steps
 
 #define intial condidtions
 energy_list = []
@@ -144,8 +145,10 @@ mass = m
 position = r
 velocity = v
 
-for s in range(step):   # Iterate through each time step
+T,e,b=calculate_period(m,r,v)
 
+for s in range(10000):   # Iterate through each time step
+    # dt,step=set_t(v,a,T)
     if s%100==0:
         energy, distance = total_energy(mass,position,velocity)
         energy_list += [energy]
