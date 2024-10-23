@@ -6,7 +6,7 @@ from scipy.stats import truncnorm
 
 
 
-def visualization(position, lim_bound=(0, 40), save=False):
+def visualization(position, lim_bound=(0, 100), window_size=300, interval=30, frame_rotation=0., savegif=False, fname=None):
     # Set up figure & 3D axis for animation
     fig = plt.figure()
     ax = fig.add_axes([0, 0, 1, 1], projection='3d')
@@ -39,9 +39,7 @@ def visualization(position, lim_bound=(0, 40), save=False):
         return lines + pts
 
     # animation function.  This will be called sequentially with the frame number
-    def animate(i): ## we can let boundary size change with step later
-        # Determine the range of timesteps to display with a window size
-        window_size = 300
+    def animate(i):
         start = max(0, i - window_size + 1)  # Starting index for the window
         end = i + 1  # Ending index for the window
 
@@ -57,29 +55,37 @@ def visualization(position, lim_bound=(0, 40), save=False):
             pt.set_data([x], [y])  # Update point data for x and y
             pt.set_3d_properties([z])  # Update point data for z
 
-        #ax.view_init(30, 0.3 * i)  # Animate the viewpoint
+        ax.view_init(30, frame_rotation * i)  # Animate the viewpoint, by default it is not rotating
+        
         fig.canvas.draw()
 
         return lines + pts
 
     # instantiate the animator.
     anim = animation.FuncAnimation(fig, animate, init_func=init,
-                                frames=position.shape[1], interval=30, blit=True)  # set interval to 300ms to see the trajectory clearly
-    if save:
-        anim.save('plot_3D.gif', writer='pillow')
+                                frames=position.shape[1], interval=interval, blit=True)
+    
+    # save the animation 
+    if savegif and fname is not None:
+        if fname.endswith('.gif'):
+            anim.save(fname, writer='pillow')
+        else:
+            raise ValueError('Only .gif format is supported for saving animation.')
+    elif savegif and fname is None:
+        raise ValueError('Please provide a filename to save the animation.')
 
     plt.show()
 
 
-#def position_ini(N, bound, mu, sigma):
-    #bound = bound.to('kpc').magnitude
-#    a = 0 # lower truncated bound
-#    b = (bound - mu) / sigma #upper truncated bound
-#    x = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-#    y = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-#    z = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-#    pos = np.column_stack((x, y, z))
-#    return pos
+def position_ini(N, bound, mu, sigma):
+    # bound = bound.to('kpc').magnitude
+    a = 0 # lower truncated bound
+    b = (bound - mu) / sigma #upper truncated bound
+    x = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
+    y = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
+    z = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
+    pos = np.column_stack((x, y, z))
+    return pos
 
 if __name__ == '__main__':
     # we generate the initial position 50 times to make 50 fake time steps
