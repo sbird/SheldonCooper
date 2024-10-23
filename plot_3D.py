@@ -6,7 +6,7 @@ from scipy.stats import truncnorm
 
 
 
-def visualization(position, lim_bound=(0, 40)):
+def visualization(position, lim_bound=(0, 40), save=False):
     # Set up figure & 3D axis for animation
     fig = plt.figure()
     ax = fig.add_axes([0, 0, 1, 1], projection='3d')
@@ -65,7 +65,9 @@ def visualization(position, lim_bound=(0, 40)):
     # instantiate the animator.
     anim = animation.FuncAnimation(fig, animate, init_func=init,
                                 frames=position.shape[1], interval=30, blit=True)  # set interval to 300ms to see the trajectory clearly
-    #anim.save('plot_3D.gif', writer='pillow', fps=30)
+    if save:
+        anim.save('plot_3D.gif', writer='pillow')
+
     plt.show()
 
 
