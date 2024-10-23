@@ -1,95 +1,47 @@
-# from initial_conditions_3d import Particles_ini
-# from Force_Nbody import const_G
+# Description: This script calculates the total energy, angular momentum, and period of a binary star system.
+# It is used to verify that the total energy and angular momentum are conserved over time.
+# The script also calculates the period of the binary star system.
 import numpy as np
 import matplotlib.pyplot as plt
 import pint
-
-const_G = 4.5e-24
-ureg = pint.UnitRegistry()
-print(const_G)
-
-
-#generating the boundry size
-#This size also depends on the phase of galaxy formation,
-#but I tried to choose the aprroximate maximum possible size of a primordial galaxy formaing gas cloud
-# boundary_size = 100*ureg.kpc
-
-# #typical rotating speed in a primordial galaxy forming environment
-# velocity_typical = 100*(ureg.km/ureg.s)
-# velocity_typical = velocity_typical.to(ureg.kpc/ureg.year)
-
-N = 2 #number of particles
-M = np.ones ((N, 1)) ##generating the mass of particles,each particle has a mass equal to solar_mass
-v = np.zeros((N, 3)) #velocity of each particle in xyz coordinates
-xyz = np.zeros ((N, 3)) #location of each particle in xyz coordinates
-
-# #Locations
-# #coordinates xyz[:, 0] -> x, xyz[:, 1] -> y, xyz[:, 2] -> z
-# # first particle
-# xyz[0, 0] = boundary_size.magnitude/2
-# xyz[0, 1] = 0
-# xyz[0, 2] = 0
-
-# #second particle
-# xyz[1, 0] = -boundary_size.magnitude/2
-# xyz[1, 1] = 0
-# xyz[1, 2] = 0
-
-
-# # v[:, 0] -> vx, v[:, 1] -> vy, v[:, 2] -> vz
-# #first particles
-# v[0, 0] = velocity_typical.magnitude #x
-# v[0, 1] = velocity_typical.magnitude #y
-# v[0, 2] = 0 #z
-
-# #second particle
-# v[1, 0] = -velocity_typical.magnitude #x
-# v[1, 1] = -velocity_typical.magnitude #y
-# v[1, 2] = 0 #z
-
-
-class Particles:
-    def __init__(self, position, velocity, mass, cm):
-        """cm is center of mass"""
-        self.position = position
-        self.velocity = velocity
-        self.mass = mass
-    def __getitem__(self, index):
-        return {
-            'position': self.position[index],
-            'velocity': self.velocity[index],
-            'mass': self.mass[index] if not np.isscalar(self.mass) else self.mass
-        }
-    
-
-# particles = Particles_ini(position=xyz,velocity=v,mass=M)
+from constants import G as const_G
 
 m = np.array([1e6,1e6])
 r = np.array([[0,0,0],[1e-5,0,0]])
 v = np.array([[0,0,0],[0,1e-6,0]])
 
-
 def center_of_mass(masses, positions,velocities):
-    """positions is an nx3 array of positions for multiple particles
-        masses is a nx1 array of masses for multiple particles"""
-    cm = np.dot(masses,positions)/np.sum(masses)
-    v_cm = np.dot(masses,velocities)/np.sum(masses)
+    """
+        masses is a Nx1 array storing the masses of N particles
+        positions is a Nx3 array storing the positions of N particles
+        velocities is a Nx3 array storing the velocities of N particles
+        returns the 3D coordination of center of mass and the velocity of the center of mass
+
+     """
+    cm = np.dot(masses,positions)/np.sum(masses) #calculating the center of mass
+    v_cm = np.dot(masses,velocities)/np.sum(masses) #calculating the velocity of the center of mass
     return cm, v_cm
 
-# print(center_of_mass(m,r))
-
-def reduced_mass(masses):
+def reduced_mass(masses): 
+    """
+        masses is a Nx1 array storing the masses of N particles
+        returns the reduced mass of the system
+        This will be used to calculate the total energy in the coordinates of the center of mass coordinates
+    """
     mu = np.prod(masses)/np.sum(masses)
     return mu
 
 
 def total_energy(masses, positions, velocities):
-    """positions is an nx3 array of positions for n particles
-        masses is a nx1 array of masses for n particles
-        velocities is an nx3 array of velocities for n particles"""
-    del_pos = np.array(positions[0]-positions[1])                   # Calculate relative position
-    rr = np.linalg.norm(del_pos)                                    # Calculate the distance from the particle
-    del_vel = np.array(velocities[0]-velocities[1])                 # Calculate the magnitude of velocity for each particle
+    """
+        masses is a Nx1 array storing the masses of N particles
+        positions is a Nx3 array storing the positions of N particles
+        velocities is a Nx3 array storing the velocities of N particles
+        returns the total energy of the system, and the relative distance between the two particles
+    """
+    del_pos = np.array(positions[0]-positions[1])          # Calculate relative position
+    rr = np.linalg.norm(del_pos)                           # Calculate the distance from the particle
+    del_vel = np.array(velocities[0]-velocities[1])        # Calculate the magnitude of velocity for each particle
     vv = np.linalg.norm(del_vel)**2
 
 
