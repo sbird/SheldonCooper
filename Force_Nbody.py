@@ -1,6 +1,10 @@
 #calculate gravitational force between particles
 import numpy as np
+<<<<<<< HEAD
 from constants import G as const_G
+=======
+from constants import G
+>>>>>>> 5834d270cb7ee0ff68d4607eece59535ce6fb9c8
 
 
 class Particle:
@@ -77,7 +81,7 @@ def cal_gforce(position, mass):
                 del_pos = np.array(position[j] - position[i])  # Calculate relative position
                 rr = np.sqrt(np.sum(del_pos**2))  # Calculate the distance from the particle
                 acc[i,:] += mass[j] * del_pos / rr**3  # Update acceleration based on gravitational force
-    acc *= const_G
+    acc *= G
 
     return acc
 
