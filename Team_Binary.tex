@@ -1,0 +1,62 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath}  % 数学公式
+\usepackage{graphicx} % 插入图片
+\usepackage{float}    % 控制图片位置
+\usepackage{geometry} % 设置页边距
+\usepackage{cite}     % 参考文献支持
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+\usepackage{xcolor}
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+% Title部分
+
+\title{Binary Test}
+\author{Team Binary}
+\date{\today}
+
+\begin{document}
+% 插入标题
+\maketitle
+Suppose we have two particles 1 and 2. Their masses, positions and velocities are $m_1$ and $m_2$, $\vec{r}_1$ and $\vec{r}_2$, $\vec{v}_1$ and $\vec{v}_1$. The relative position and velocity are $\vec{r}=\vec{r}_1-\vec{r}_2$ $\vec{v}=\vec{v}_1-\vec{v}_2$.
+
+We calculate their reduced mass 
+\begin{align}
+    \mu=\frac{m_1 m_2}{m_1 +m_2}.
+\end{align} 
+The position of the center of mass is 
+\begin{align}
+    \vec{R}_{\rm C}=\frac{m_1 \vec{r}_1+m_2 \vec{r}_2}{m_1+m_2}.
+\end{align}
+
+We choose the coordinate where the center of mass is static.
+The total energy is 
+\begin{align}
+     E=\frac{1}{2}\mu v^2-\frac{G m_1 m_2}{r}.
+\end{align}
+Here $v=|\vec{v}|$ and $r=|\vec{r}|$.
+
+The angular momentum is 
+\begin{align}
+    L=\vec{r}\times \mu \vec{v}.
+\end{align}
+
+The major axis is
+\begin{align}
+    a=-\frac{G m_1 m_2}{2E}.
+\end{align}
+
+The period is 
+\begin{align}
+    T^2=\frac{4 \pi^2 a^3}{G(m_1+m_2)}.
+\end{align}
+    
+The eccentricity is 
+\begin{align}
+    e=\sqrt{1+\frac{2EL^2}{\mu(Gm_1m_2)^2}}.
+\end{align}
+
+The maximum and minimum distance between the two particles are $r_{\rm max}=a(1+e)$ and $r_{\rm min}=a(1-e)$.
+
+The initial conditions we choose are as follows:
+$m_1=10^{6}M_{\odot}$,$m_2=10^{6}M_{\odot}$; $\vec{r}_1=(0,0,0)$, $\vec{r}_2=(10^{-5}\,{\rm kpc},0,0)$; $\vec{v}_1=(0,0,0)$, $\vec{v}_2=(0, 10^{-6}\, {\rm kpc/s},0)$.
+\end{document}

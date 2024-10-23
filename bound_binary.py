@@ -123,8 +123,8 @@ def calculate_period(masses,positions,velocities):
      T = np.sqrt(4*np.pi**2 * a**3 / (const_G * np.sum(masses)))
      tot_L=np.linalg.norm(angular_momentum(m,r,v))
      elli=np.sqrt(1+2*tot_E*tot_L**2/(reduced_mass(m)*(const_G*m[0]*m[1])**2))
-     b=a*np.sqrt(1-elli**2)
-     return T,2*a,2*b                                # define a period
+
+     return T,a*(1+elli),a*(1-elli)                               # define a period
 #     L = angular_momentum(masses,positions,velocities)
 #     L_mag = np.linalg.norm(L)
 

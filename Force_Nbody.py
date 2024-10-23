@@ -1,6 +1,6 @@
 #calculate gravitational force between particles
 import numpy as np
-from constants import const_G
+from constants import G as const_G
 
 
 class Particle:
