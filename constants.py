@@ -1,5 +1,5 @@
 #PLEASE USE THIS CODE FOR ALL YOUR PHYSICAL CONSTANT, DO NOT TRY YO CALCULATE THEM BY HAND! YOU WILL DEFINATELY MESS THAT UP!
-#THANKS YOU FOR YOUR COOPERATION :)
+#THANKS FOR YOUR COOPERATION :)
 """
 Code to store all the physical constant
 The original Constants are in SI units and then converted to desired units using pint library
