@@ -61,8 +61,9 @@ class Particles_ini:
         #but we tried to choose the aprroximate maximum possible size of a primordial galaxy formaing gas cloud
         self.position = position_ini(N=n, bound=boundary_size*ureg.kpc, mu=mu, sigma=sigma_pos)
         self.velocity = velocity_ini(N=n, T=T)
-        self.mass = np.ones(n) * ureg.solar_mass.magnitude
-
+        #self.mass = np.ones(n) * ureg.solar_mass.magnitude  #this line has error
+        
+        
     def __getitem__(self, index):
         return {
             'position': self.position[index],

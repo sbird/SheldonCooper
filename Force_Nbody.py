@@ -1,8 +1,6 @@
 #calculate gravitational force between particles
 import numpy as np
-
-const_G=4.5*10**(-24) # in the unit of (kpc / solar mass^-1 * (km/s)^2)
-# const_G =1
+from constants import const_G
 
 
 class Particle:
