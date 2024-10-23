@@ -1,10 +1,12 @@
-#PLEASE USE THIS CODE FOR ALL YOUR PHYSICAL CONSTANT, DO NOT TRY YO CALCULATE THEM BY HAND! YOU WILL DEFINATELY MESS THAT UP!
+#PLEASE USE THIS CODE FOR ALL YOUR PHYSICAL CONSTANTS, DO NOT TRY YO CALCULATE THEM BY HAND! YOU WILL DEFINATELY MESS THAT UP!
 #THANKS FOR YOUR COOPERATION :)
+
 """
 Code to store all the physical constant
-The original Constants are in SI units and then converted to desired units using pint library
+The original Constants are in the SI units and then converted to desired units using pint library
 The desired units are Kpc, Solar Mass, and yr
 """
+
 import pint
 ureg = pint.UnitRegistry()
 
