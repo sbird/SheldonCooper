@@ -65,34 +65,39 @@ class Particles:
 
 m = np.array([2,2])
 r = np.array([[0,0,0],[1,0,0]])
-v = np.array([[0,1,0],[0,-1,0]])
+v = np.array([[0,0,0],[0,0,0]])
 
 
-def center_of_mass(masses, positions):
+def center_of_mass(masses, positions,velocities):
     """positions is an nx3 array of positions for multiple particles
         masses is a nx1 array of masses for multiple particles"""
     cm = np.dot(masses,positions)/np.sum(masses)
-    return cm 
+    v_cm = np.dot(masses,velocities)/np.sum(masses)
+    return cm, v_cm
 
 # print(center_of_mass(m,r))
+
+def reduced_mass(masses):
+    mu = np.prod(masses)/np.sum(masses)
+    return mu
 
 
 def total_energy(masses, positions, velocities):
     """positions is an nx3 array of positions for n particles
         masses is a nx1 array of masses for n particles
         velocities is an nx3 array of velocities for n particles"""
-    del_pos = np.array(positions[0]-positions[1])   # Calculate relative position
-    rr = np.sqrt(np.sum(del_pos**2))                # Calculate the distance from the particle
-    vv = np.sum(velocities**2, axis=1)              # Calculate the magnitude of velocity for each particle
+    del_pos = np.array(positions[0]-positions[1])                   # Calculate relative position
+    rr = np.linalg.norm(del_pos)                                    # Calculate the distance from the particle
+    del_vel = np.array(velocities[0]-velocities[1])                 # Calculate the magnitude of velocity for each particle
+    vv = np.linalg.norm(del_vel)**2
 
-    # const_G = 1
 
-    U = -np.sum(const_G*masses[0]*masses[1]/rr)      # Calculate potential energy
-    K = np.sum(0.5*masses*vv)                       # Calculate kinetic energy
+    U = -const_G*masses[0]*masses[1]/rr      # Calculate potential energy
+    K = 0.5*reduced_mass(masses)*vv          # Calculate kinetic energy
     # print("potential energy:", U/const_G)
     # print("kinetic energy:", K)
 
-    E = K + U                                       # Sum total energy
+    E = K + U           # Sum total energy
     # print(E)
     return E,rr
 
@@ -103,23 +108,24 @@ def angular_momentum(masses,positions,velocities):
     """positions is an nx3 array of positions for n particles
         masses is a nx1 array of masses for n particles
         velocities is an nx3 array of velocities for n particles"""
-    r_cross_v = np.cross(positions, velocities)  
-    L_arr = np.dot(masses,r_cross_v)
-    L = np.sqrt(np.sum(L_arr**2))
-    # print(np.shape(L_arr),L_arr)
+    r_cross_v = np.cross(positions[0]-positions[1], velocities[0]-velocities[1])  
+    L_arr = reduced_mass(masses)*r_cross_v
+    # L = np.sqrt(np.sum(L_arr**2))
     return L_arr
 
 # print(angular_momentum(m,r,v))
 
 
-def calculate_period(masses,positions,velocities):
-    a = -1/2 * const_G * masses[0] * masses[1] / total_energy(masses,positions,velocities)      # define a semi-major axis
-    T = np.sqrt(4*np.pi**2 * a**3 / (const_G * np.sum(masses)))                                 # define a period
-    L = angular_momentum(masses,positions,velocities)
-    mu = masses[1]*masses[0]/np.sum(masses)
-    e = np.sqrt(1 + 2*total_energy(masses,positions,velocities)[0] * np.sqrt(np.sum(L**2)) / (const_G**2 * np.sum(masses)**2 * mu**3))
-    b = e*a
-    return T,e,b
+# def calculate_period(masses,positions,velocities):
+#     a = -1/2 * const_G * masses[0] * masses[1] / total_energy(masses,positions,velocities)      # define a semi-major axis
+#     T = np.sqrt(4*np.pi**2 * a**3 / (const_G * np.sum(masses)))                                 # define a period
+#     L = angular_momentum(masses,positions,velocities)
+#     L_mag = np.linalg.norm(L)
+
+#     mu = masses[1]*masses[0]/np.sum(masses)
+#     e = np.sqrt(1 + 2*total_energy(masses,positions,velocities)[0] * L_mag / (const_G**2 * np.sum(masses)**2 * mu**3))
+#     b = e*a
+#     return T,e,b
 
 # print("Period", calculate_period(m,r,v))
 
@@ -145,7 +151,7 @@ mass = m
 position = r
 velocity = v
 
-T,e,b=calculate_period(m,r,v)
+# T,e,b=calculate_period(m,r,v)
 
 for s in range(10000):   # Iterate through each time step
     # dt,step=set_t(v,a,T)
@@ -166,17 +172,23 @@ for s in range(10000):   # Iterate through each time step
     # print("pos,vel:",velocity_temp,position)
     velocity = velocity_temp
 
-fig,axes = plt.subplots(1,3,figsize=(15,5))
+fig,axes = plt.subplots(1,3,figsize=(17,5))
 time=np.array([i for i in range(len(energy_list))])
 
 ax = axes[0]
 ax.plot(time,energy_list)
+ax.set_xlabel("time (years)")
+ax.set_ylabel(r"total energy $[M_{\odot}*\frac{kpc}{year}^2]$")
 
 angular_momentum_list = np.array(angular_momentum_list)
 ax = axes[1]
 ax.plot(time,angular_momentum_list[:,2])
+ax.set_xlabel("time (years)")
+ax.set_ylabel(r"angular momentum $M_{\odot}\frac{kpc^2}{year}$")
 
 ax = axes[2]
 ax.plot(time,relative_positions)
+ax.set_xlabel("time (years)")
+ax.set_ylabel("relative positions (kpc)")
 
 plt.savefig("binary_conserved.png")

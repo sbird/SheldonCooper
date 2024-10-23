@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 # Constants
 dt = 0.01  # Time step in years
-T = 10000  # Total time in years
+T = 1000  # Total time in years
 step = int(T / dt)  # Number of steps
 
 # Particle system dimensions
@@ -34,14 +34,14 @@ def set_t(v,a,T):
    return dt,step
 
 # Evolve velocity function
-def evolve_velocity(v, a, dt):
+def evolve_velocity(v, a):
     """Evolves the velocity of each particle.
     Each v_i and a_i is a 3xn numpy array representing x, y, z coordinates for n particles."""
     v_new = v + a * dt  # Update velocity using v = v0 + at
     return v_new        # Return updated velocity
 
 # Evolve position function
-def evolve_position(r, v, dt):
+def evolve_position(r, v):
     """Evolves the position of each particle.
     Each r_i and v_i is a 3xn numpy array representing x, y, z coordinates for n particles."""
     r_new = r + v * dt  # Update position using r = r0 + vt
