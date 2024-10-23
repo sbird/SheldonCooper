@@ -15,4 +15,4 @@ ureg.define('solar_mass = 1.98847e30 * kilogram')
 #calculating the gravitational constant in our desired units
 G = 6.67*10**-11 * ureg.m**3/(ureg.kg*ureg.s**2)
 G = G.to(ureg.kpc**3/(ureg.solar_masss*ureg.yr**2))
-G= G.magnitude
+G = G.magnitude
