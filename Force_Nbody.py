@@ -2,6 +2,7 @@
 import numpy as np
 
 const_G=4.3*10**(-6) # in the unit of (kpc / solar mass^-1 * (km/s)^2)
+# const_G =1
 
 
 class Particle:
@@ -70,15 +71,14 @@ def cal_gforce(position, mass):
     p_array : list
         A list of Particle objects that represent other particles in the simulation.
     """
-    acc = np.zeros_like(position)
+    acc = np.zeros_like(position,dtype=float)
     
     for i in range(len(position)):
         for j in range(len(position)):
             if i != j:  # Skip self to avoid self-interaction
                 del_pos = np.array(position[j] - position[i])  # Calculate relative position
                 rr = np.sqrt(np.sum(del_pos**2))  # Calculate the distance from the particle
-                acc[i] += mass[j] * del_pos / rr**3  # Update acceleration based on gravitational force
-    
+                acc[i,:] += mass[j] * del_pos / rr**3  # Update acceleration based on gravitational force
     acc *= const_G
 
     return acc
