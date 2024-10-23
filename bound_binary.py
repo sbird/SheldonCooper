@@ -1,9 +1,9 @@
 # Description: This script calculates the total energy, angular momentum, and period of a binary star system.
 # It is used to verify that the total energy and angular momentum are conserved over time.
 # The script also calculates the period of the binary star system.
+#Writers: Lauren, Hui, Aryana, Negin
 import numpy as np
 import matplotlib.pyplot as plt
-import pint
 from constants import G as const_G
 
 m = np.array([1e6,1e6])
@@ -47,60 +47,48 @@ def total_energy(masses, positions, velocities):
 
     U = -const_G*masses[0]*masses[1]/rr      # Calculate potential energy
     K = 0.5*reduced_mass(masses)*vv          # Calculate kinetic energy
-    # print("potential energy:", U/const_G)
-    # print("kinetic energy:", K)
-
-    E = K + U           # Sum total energy
-    # print(E)
+    E = K + U                                # Sum total energy
     return E,rr
 
-print(total_energy(m,r,v))
+print("The total Energy of the system is:", total_energy(m,r,v)[0], "M_sun*kpc^2/year^2")
 
 
 def angular_momentum(masses,positions,velocities):
-    """positions is an nx3 array of positions for n particles
-        masses is a nx1 array of masses for n particles
-        velocities is an nx3 array of velocities for n particles"""
+    """
+        masses is a Nx1 array storing the masses of N particles
+        positions is a Nx3 array storing the positions of N particles
+        velocities is a Nx3 array storing the velocities of N particles
+        returns the angular momentum of the system with respect to the center of mass
+    """
     r_cross_v = np.cross(positions[0]-positions[1], velocities[0]-velocities[1])  
     L_arr = reduced_mass(masses)*r_cross_v
     # L = np.sqrt(np.sum(L_arr**2))
     return L_arr
 
-# print(angular_momentum(m,r,v))
-
-
 def calculate_period(masses,positions,velocities):
-     tot_E,rr=total_energy(masses,positions,velocities)
+     """
+        masses is a Nx1 array storing the masses of N particles
+        positions is a Nx3 array storing the positions of N particles
+        velocities is a Nx3 array storing the velocities of N particles
+        returns the period of the binary star system, and the semi-major and semi-minor axis of the binary star system
+     """
+     tot_E,rr=total_energy(masses,positions,velocities)      # calculate the total energy of the system
      a = -1/2 * const_G * masses[0] * masses[1] / tot_E      # define a semi-major axis
-     T = np.sqrt(4*np.pi**2 * a**3 / (const_G * np.sum(masses)))
-     tot_L=np.linalg.norm(angular_momentum(m,r,v))
+     T = np.sqrt(4*np.pi**2 * a**3 / (const_G * np.sum(masses))) #calculate the period
+     tot_L=np.linalg.norm(angular_momentum(m,r,v))           # calculate the angular momentum
      elli=np.sqrt(1+2*tot_E*tot_L**2/(reduced_mass(m)*(const_G*m[0]*m[1])**2))
 
-     return T,a*(1+elli),a*(1-elli)                               # define a period
-#     L = angular_momentum(masses,positions,velocities)
-#     L_mag = np.linalg.norm(L)
+     return T, a*(1+elli), a*(1-elli)                             # return the period, semi-major and semi-minor axis
 
-#     mu = masses[1]*masses[0]/np.sum(masses)
-#     e = np.sqrt(1 + 2*total_energy(masses,positions,velocities)[0] * L_mag / (const_G**2 * np.sum(masses)**2 * mu**3))
-#     b = e*a
-#     return T,e,b
-
-# print("Period", calculate_period(m,r,v))
-
-
-
-
+print("The priode of the system is period:",calculate_period(m,r,v)[0], "years")
+print("The semi-major axis of the system is:",calculate_period(m,r,v)[1], "kpc")
+print("The semi-minor axis of the system is:",calculate_period(m,r,v)[2], "kpc")
 
 
 from sc_time_evolution import evolve_position, evolve_velocity
 from Force_Nbody import cal_gforce
 from sc_time_evolution import dt, T, step
 
-#dt = 0.1  # Time step in years
-#T = 6060 # Total time in years
-#step = int(T / dt)  # Number of steps
-
-#define intial condidtions
 energy_list = []
 angular_momentum_list = []
 relative_positions = []
@@ -109,10 +97,8 @@ mass = m
 position = r
 velocity = v
 
-# T,e,b=calculate_period(m,r,v)
-print("period:",calculate_period(m,r,v))
+#Evolution of binary system
 for s in range(step):   # Iterate through each time step
-    # dt,step=set_t(v,a,T)
     if s%100==0:
         energy, distance = total_energy(mass,position,velocity)
         energy_list += [energy]
@@ -121,17 +107,15 @@ for s in range(step):   # Iterate through each time step
         angular_momentum_list += [ang_mom]
 
     # Store current velocity, acceleration, and position for each particle at time step s
-    acceleration = cal_gforce(position, m)
-    # print(acceleration)
+    acceleration = cal_gforce(position, m)                      # Calculate acceleration
 
     # Evolve velocity and position using the current state
     velocity_temp = evolve_velocity(velocity, acceleration)          # Update velocity
     position = evolve_position(position, velocity)             # Update position based on the current velocity
-    # print("pos,vel:",velocity_temp,position)
     velocity = velocity_temp
 
-fig,axes = plt.subplots(1,3,figsize=(17,5))
-time=np.array([i for i in range(len(energy_list))])
+fig,axes = plt.subplots(1, 3, figsize=(17,5))
+time = np.array([i for i in range(len(energy_list))])
 
 ax = axes[0]
 ax.plot(time,energy_list)
