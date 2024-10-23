@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 # Constants
 dt = 0.01  # Time step in years
-T = 1000  # Total time in years
+T = 250  # Total time in years
 step = int(T / dt)  # Number of steps
 
 # Particle system dimensions

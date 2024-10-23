@@ -1,9 +1,10 @@
 # from initial_conditions_3d import Particles_ini
-from Force_Nbody import const_G
+# from Force_Nbody import const_G
 import numpy as np
 import matplotlib.pyplot as plt
 import pint
 
+const_G = 4.5e-24
 ureg = pint.UnitRegistry()
 print(const_G)
 
@@ -63,9 +64,9 @@ class Particles:
 
 # particles = Particles_ini(position=xyz,velocity=v,mass=M)
 
-m = np.array([2,2])
-r = np.array([[0,0,0],[1,0,0]])
-v = np.array([[0,0,0],[0,0,0]])
+m = np.array([1e6,1e6])
+r = np.array([[0,0,0],[1e-5,0,0]])
+v = np.array([[0,0,0],[0,1e-6,0]])
 
 
 def center_of_mass(masses, positions,velocities):
@@ -116,9 +117,14 @@ def angular_momentum(masses,positions,velocities):
 # print(angular_momentum(m,r,v))
 
 
-# def calculate_period(masses,positions,velocities):
-#     a = -1/2 * const_G * masses[0] * masses[1] / total_energy(masses,positions,velocities)      # define a semi-major axis
-#     T = np.sqrt(4*np.pi**2 * a**3 / (const_G * np.sum(masses)))                                 # define a period
+def calculate_period(masses,positions,velocities):
+     tot_E,rr=total_energy(masses,positions,velocities)
+     a = -1/2 * const_G * masses[0] * masses[1] / tot_E      # define a semi-major axis
+     T = np.sqrt(4*np.pi**2 * a**3 / (const_G * np.sum(masses)))
+     tot_L=np.linalg.norm(angular_momentum(m,r,v))
+     elli=np.sqrt(1+2*tot_E*tot_L**2/(reduced_mass(m)*(const_G*m[0]*m[1])**2))
+     b=a*np.sqrt(1-elli**2)
+     return T,2*a,2*b                                # define a period
 #     L = angular_momentum(masses,positions,velocities)
 #     L_mag = np.linalg.norm(L)
 
@@ -152,8 +158,8 @@ position = r
 velocity = v
 
 # T,e,b=calculate_period(m,r,v)
-
-for s in range(10000):   # Iterate through each time step
+print("period:",calculate_period(m,r,v))
+for s in range(step):   # Iterate through each time step
     # dt,step=set_t(v,a,T)
     if s%100==0:
         energy, distance = total_energy(mass,position,velocity)
