@@ -10,22 +10,22 @@ Original file is located at
 #time evolution for the Sheldon Cooper N Body Simulation
 
 import numpy as np
-import scipy
-import matplotlib.pyplot as plt
+
 # import pint
 
 # Constants
-dt = 1  # Time step in years
-T = 100  # Total time in years
+dt = 0.01  # Time step in years
+T = 250  # Total time in years
 step = int(T / dt)  # Number of steps
 
-# Particle system dimensions
-n = 2  # Number of particles (for testing)
-r_i = np.ones((3, n))  # Initial position (3 coordinates for each particle)
-v_i = np.ones((3, n))  # Initial velocity (3 coordinates for each particle)
-a_i = np.ones((3, n))  # Initial acceleration (3 coordinates for each particle)
 
 
+def set_t(v,a,T):
+    len_v=np.array([np.linalg.norm(v[i]) for i in range(len(v))])
+    len_a=np.array([np.linalg.norm(a[i]) for i in range(len(a))])
+    dt=1e-3*np.min(len_v)/np.max(len_a)
+    step = int(2*T / dt)
+    return dt,step
 
 # Evolve velocity function
 def evolve_velocity(v, a):
@@ -42,30 +42,36 @@ def evolve_position(r, v):
     return r_new        # Return updated position
 
 
-# Initialize a matrix to store positions, velocities, and accelerations over time
-matrix = np.empty((n, step, 3))   # Empty matrix of shape (n particles, steps, 3 coordinates)
-arr_3x1 = np.ones((3, 1))         # 3x1 array of ones
-matrix[:, :, :] = arr_3x1.T       # Assuming arr_3x1 is predefined and is a 3x1 array for initialization
+if __name__ == '__main__':
+    # Particle system dimensions
+    n = 2  # Number of particles (for testing)
+    r_i = np.ones((3, n))  # Initial position (3 coordinates for each particle)
+    v_i = np.ones((3, n))  # Initial velocity (3 coordinates for each particle)
+    a_i = np.ones((3, n))  # Initial acceleration (3 coordinates for each particle)
+    # Initialize a matrix to store positions, velocities, and accelerations over time
+    matrix = np.empty((n, step, 3))   # Empty matrix of shape (n particles, steps, 3 coordinates)
+    arr_3x1 = np.ones((3, 1))         # 3x1 array of ones
+    matrix[:, :, :] = arr_3x1.T       # Assuming arr_3x1 is predefined and is a 3x1 array for initialization
 
-# Duplicate matrix for velocity, acceleration, and position
-velocity = matrix.copy()                # Matrix to store velocity over time
-position = matrix.copy()                # Matrix to store position over time
-acceleration = matrix.copy()            # Matrix to store acceleration over time
+    # Duplicate matrix for velocity, acceleration, and position
+    velocity = matrix.copy()                # Matrix to store velocity over time
+    position = matrix.copy()                # Matrix to store position over time
+    acceleration = matrix.copy()            # Matrix to store acceleration over time
 
-# Time evolution loop
-for s in range(step):   # Iterate through each time step
-  # Store current velocity, acceleration, and position for each particle at time step s
-  velocity[:,s,:] = v_i.T
-  acceleration[:,s,:] = a_i.T
-  position[:,s,:] = r_i.T
+    # Time evolution loop
+    for s in range(step):   # Iterate through each time step
+        # Store current velocity, acceleration, and position for each particle at time step s
+        velocity[:,s,:] = v_i.T
+        acceleration[:,s,:] = a_i.T
+        position[:,s,:] = r_i.T
 
-  # Evolve velocity and position using the current state
-  v_temp = evolve_velocity(v_i,a_i)          # Update velocity
-  r_i = evolve_position(r_i,v_i)             # Update position based on the current velocity
-  v_i = v_temp                               # Update the velocity for the next iteration
-# a_i = force_func(mass,r_i)        # Update acceleration based on the forces
+        # Evolve velocity and position using the current state
+        v_temp = evolve_velocity(v_i,a_i)          # Update velocity
+        r_i = evolve_position(r_i,v_i)             # Update position based on the current velocity
+        v_i = v_temp                               # Update the velocity for the next iteration
+        # a_i = force_func(mass,r_i)        # Update acceleration based on the forces
 
-print(v_i,r_i)
+        print(v_i,r_i)
 
 #import scipy.integrate.quad as quad
 
