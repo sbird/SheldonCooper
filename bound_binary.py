@@ -5,6 +5,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from constants import G as const_G
+from plot_3D import visualization
 
 m = np.array([1e6,1e6])
 r = np.array([[0,0,0],[1e-5,0,0]])
@@ -97,6 +98,8 @@ mass = m
 position = r
 velocity = v
 
+position_matrix_binary = np.empty((2, step, 3))
+n = 0
 #Evolution of binary system
 for s in range(step):   # Iterate through each time step
     if s%100==0:
@@ -105,7 +108,8 @@ for s in range(step):   # Iterate through each time step
         relative_positions += [distance]
         ang_mom = angular_momentum(mass,position,velocity)
         angular_momentum_list += [ang_mom]
-
+        position_matrix_binary[:, n, :] = position
+        n = n+1           
     # Store current velocity, acceleration, and position for each particle at time step s
     acceleration = cal_gforce(position, m)                      # Calculate acceleration
 
@@ -113,6 +117,8 @@ for s in range(step):   # Iterate through each time step
     velocity_temp = evolve_velocity(velocity, acceleration)          # Update velocity
     position = evolve_position(position, velocity)             # Update position based on the current velocity
     velocity = velocity_temp
+
+visualization(position=position_matrix_binary, lim_bound=(0,3e-5))
 
 fig,axes = plt.subplots(1, 3, figsize=(17,5))
 time = np.array([i for i in range(len(energy_list))])
