@@ -55,16 +55,6 @@ def visualization(position, lim_bound=(0, 100), window_size=300, interval=30, fr
             pt.set_data([x], [y])  # Update point data for x and y
             pt.set_3d_properties([z])  # Update point data for z
         
-        if i % 100 == 0:
-            alpha = 0.5
-            x_min, x_max = lim_bound[1]/2 - alpha * np.median(np.abs(position[:, i, 0])), lim_bound[1]/2 + alpha * np.median(np.abs(position[:, i, 0]))
-            y_min, y_max = lim_bound[1]/2 - alpha * np.median(np.abs(position[:, i, 1])), lim_bound[1]/2 + alpha * np.median(np.abs(position[:, i, 1]))
-            z_min, z_max = lim_bound[1]/2 - alpha * np.median(np.abs(position[:, i, 2])), lim_bound[1]/2 + alpha * np.median(np.abs(position[:, i, 2]))
-
-            ax.set_xlim((x_min, x_max))
-            ax.set_ylim((y_min, y_max))
-            ax.set_zlim((z_min, z_max))
-
         # ax.view_init(30, frame_rotation * i)  # Animate the viewpoint, by default it is not rotating
         
         fig.canvas.draw()
