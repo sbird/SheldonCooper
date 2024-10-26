@@ -18,15 +18,19 @@ def choose_initial_condition(number_perticles=2):
     masses       = np.sort(np.array(masses))[::-1]
     distance     = np.random.randint(1,9)   * 1e-5
     e            = np.random.randint(10,40) * 0.01
-    print(e)
+    print('e = ', e)
+    v_rel        = np.sqrt(const_G*np.sum(masses)*(1-e)/distance)
     mu           = np.prod(masses) / np.sum(masses)
-    g_m_m_r      = const_G * np.prod(masses) / distance
-    total_energy = -0.5 * (g_m_m_r - np.sqrt(g_m_m_r**2 + mu*const_G**2*(e**2-1)/distance**2))
-    v1           = np.sqrt((2*masses[1])/(masses[0]*np.sum(masses)) * (total_energy + (const_G * np.prod(masses)) / distance))
-    velocities   = np.array([[0,-(-masses[1]/masses[0])*v1,0],[0,v1,0]])
-    positions    = np.array([[masses[1]/np.sum(masses)*distance,0,0],[-masses[0]/np.sum(masses)*distance,0,0]])
-    angular_mom  = mu*distance*v1*(1+masses[0]/masses[1])
-    print('eccentricity: ', np.sqrt(1 + 2*total_energy*angular_mom**2 / const_G**2*mu**2))
+    total_energy = 0.5*mu*v_rel**2 - const_G*np.prod(masses)/distance
+    print('E = ', total_energy)
+    a            = -0.5 * const_G * np.prod(masses) / total_energy
+    print('a = ', a)
+    period       = np.sqrt((4*np.pi**2*a**3)/(const_G*np.sum(masses)))
+    print('T = ', period)
+    velocities   = np.array([[0,-masses[0]/np.sum(masses)*v_rel,0],[0,masses[1]/np.sum(masses)*v_rel,0]])
+    positions    = np.array([[masses[0]/np.sum(masses)*distance,0,0],[-masses[1]/np.sum(masses)*distance,0,0]])
+    # angular_mom  = mu*distance*v1*(1+masses[0]/masses[1])
+    # print('eccentricity: ', np.sqrt(1 + 2*total_energy*angular_mom**2 / const_G**2*mu**2))
     return masses, positions, velocities
     
 
@@ -104,8 +108,8 @@ def calculate_period(masses,positions,velocities):
      return T, a*(1+elli), a*(1-elli)                             # return the period, semi-major and semi-minor axis
 
 print("The priode of the system is period:",calculate_period(m,r,v)[0], "years")
-print("The semi-major axis of the system is:",calculate_period(m,r,v)[1], "kpc")
-print("The semi-minor axis of the system is:",calculate_period(m,r,v)[2], "kpc")
+print("The maximum distance is:",calculate_period(m,r,v)[1], "kpc")
+print("The minimum distance is:",calculate_period(m,r,v)[2], "kpc")
 
 
 from sc_time_evolution import evolve_position, evolve_velocity
