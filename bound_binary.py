@@ -5,11 +5,37 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from constants import G as const_G
+from constants import c as const_c
 from plot_3D import visualization
 
-m = np.array([1e6,1e6])
-r = np.array([[0,0,0],[1e-5,0,0]])
-v = np.array([[0,0,0],[0,1e-6,0]])
+# m = np.array([1e6,1e6])
+# r = np.array([[0,0,0],[1e-5,0,0]])
+# v = np.array([[0,0,0],[0,1e-6,0]])
+
+def choose_initial_condition(number_perticles=2):
+    masses = []
+    for i in range(number_perticles): masses.append(np.random.randint(1,9) * 1e6)
+    masses       = np.sort(np.array(masses))[::-1]
+    distance     = np.random.randint(1,9)   * 1e-5
+    e            = np.random.randint(10,40) * 0.01
+    print('e = ', e)
+    v_rel        = np.sqrt(const_G*np.sum(masses)*(1-e)/distance)
+    mu           = np.prod(masses) / np.sum(masses)
+    total_energy = 0.5*mu*v_rel**2 - const_G*np.prod(masses)/distance
+    print('E = ', total_energy)
+    a            = -0.5 * const_G * np.prod(masses) / total_energy
+    print('a = ', a)
+    period       = np.sqrt((4*np.pi**2*a**3)/(const_G*np.sum(masses)))
+    print('T = ', period)
+    velocities   = np.array([[0,-masses[0]/np.sum(masses)*v_rel,0],[0,masses[1]/np.sum(masses)*v_rel,0]])
+    positions    = np.array([[masses[0]/np.sum(masses)*distance,0,0],[-masses[1]/np.sum(masses)*distance,0,0]])
+    # angular_mom  = mu*distance*v1*(1+masses[0]/masses[1])
+    # print('eccentricity: ', np.sqrt(1 + 2*total_energy*angular_mom**2 / const_G**2*mu**2))
+    return masses, positions, velocities
+    
+
+
+m, r, v = choose_initial_condition()
 
 def center_of_mass(masses, positions,velocities):
     """
@@ -82,8 +108,8 @@ def calculate_period(masses,positions,velocities):
      return T, a*(1+elli), a*(1-elli)                             # return the period, semi-major and semi-minor axis
 
 print("The priode of the system is period:",calculate_period(m,r,v)[0], "years")
-print("The semi-major axis of the system is:",calculate_period(m,r,v)[1], "kpc")
-print("The semi-minor axis of the system is:",calculate_period(m,r,v)[2], "kpc")
+print("The maximum distance is:",calculate_period(m,r,v)[1], "kpc")
+print("The minimum distance is:",calculate_period(m,r,v)[2], "kpc")
 
 
 from sc_time_evolution import evolve_position, evolve_velocity
@@ -118,7 +144,7 @@ for s in range(step):   # Iterate through each time step
     position = evolve_position(position, velocity)             # Update position based on the current velocity
     velocity = velocity_temp
 
-visualization(position=position_matrix_binary, lim_bound=(0,3e-5))
+# visualization(position=position_matrix_binary, lim_bound=(0,3e-5))
 
 fig,axes = plt.subplots(1, 3, figsize=(17,5))
 time = np.array([i for i in range(len(energy_list))])
@@ -140,3 +166,4 @@ ax.set_xlabel("time (years)")
 ax.set_ylabel("relative positions (kpc)")
 
 plt.savefig("binary_conserved.png")
+print('Done!')
