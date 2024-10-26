@@ -144,7 +144,7 @@ for s in range(step):   # Iterate through each time step
     position = evolve_position(position, velocity)             # Update position based on the current velocity
     velocity = velocity_temp
 
-# visualization(position=position_matrix_binary, lim_bound=(0,3e-5))
+visualization(position=position_matrix_binary, lim_bound=(-1e-4,1e-4))
 
 fig,axes = plt.subplots(1, 3, figsize=(17,5))
 time = np.array([i for i in range(len(energy_list))])
