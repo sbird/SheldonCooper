@@ -18,6 +18,11 @@ G = 6.67*10**-11 * ureg.m**3/(ureg.kg*ureg.s**2)
 G = G.to(ureg.kpc**3/(ureg.solar_masss*ureg.yr**2))
 G = G.magnitude
 
+# The Speed of Light
+c = 3e8 * ureg.m/ureg.s
+c = c.to(ureg.kpc/ureg.yr)
+c = c.magnitude
+
 #Boltzman constant (to be used for velocity distribution)
 k_B = 1.380649e-23 *(ureg.J/ureg.K) # Boltzmann constant in J/K
 k_B = k_B.to(ureg. solar_mass*ureg. kpc**2/( ureg.year**2*ureg.K)) #Boltzman constant in our desirable units
