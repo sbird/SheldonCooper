@@ -5,7 +5,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from constants import G as const_G
-from constants import c as const_c
+# from constants import c as const_c
 from plot_3D import visualization
 
 # m = np.array([1e6,1e6])
