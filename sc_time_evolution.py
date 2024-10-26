@@ -14,28 +14,28 @@ import numpy as np
 # import pint
 
 # Constants
-dt = 0.01  # Time step in years
-T = 1000  # Total time in years
-step = int(T / dt)  # Number of steps
+# dt = 0.01  # Time step in years
+# T  = 1000  # Total time in years
+# step = int(T / dt)  # Number of steps
 
 
 
-def set_t(v,a,T):
-    len_v=np.array([np.linalg.norm(v[i]) for i in range(len(v))])
-    len_a=np.array([np.linalg.norm(a[i]) for i in range(len(a))])
-    dt=1e-3*np.min(len_v)/np.max(len_a)
-    step = int(2*T / dt)
-    return dt,step
+def set_t(v, a, coeff=1e-3):
+    len_v = np.array([np.linalg.norm(v[i]) for i in range(len(v))])
+    len_a = np.array([np.linalg.norm(a[i]) for i in range(len(a))])
+    dt    = coeff * np.min(len_v) / np.max(len_a)
+    # step  = int(T / dt)
+    return dt
 
 # Evolve velocity function
-def evolve_velocity(v, a):
+def evolve_velocity(v, a, dt):
     """Evolves the velocity of each particle.
     Each v_i and a_i is a 3xn numpy array representing x, y, z coordinates for n particles."""
     v_new = v + a * dt  # Update velocity using v = v0 + at
     return v_new        # Return updated velocity
 
 # Evolve position function
-def evolve_position(r, v):
+def evolve_position(r, v, dt):
     """Evolves the position of each particle.
     Each r_i and v_i is a 3xn numpy array representing x, y, z coordinates for n particles."""
     r_new = r + v * dt  # Update position using r = r0 + vt
