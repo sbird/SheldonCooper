@@ -1,0 +1,156 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage{amsmath}  % 数学公式
+\usepackage{graphicx} % 插入图片
+\usepackage{float}    % 控制图片位置
+\usepackage{geometry} % 设置页边距
+\usepackage{cite}     % 参考文献支持
+\usepackage[colorlinks=true,linkcolor=black,urlcolor=blue]{hyperref}
+\usepackage{xcolor}
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+% Title部分
+
+\title{Binary Test}
+\author{New Team Binary}
+\date{\today}
+
+\begin{document}
+% 插入标题
+\maketitle
+\section{Version 1}
+Suppose we have two particles 1 and 2. Their masses, positions and velocities are $m_1$ and $m_2$, $\vec{r}_1$ and $\vec{r}_2$, $\vec{v}_1$ and $\vec{v}_1$. The relative position and velocity are $\vec{r}=\vec{r}_1-\vec{r}_2$ $\vec{v}=\vec{v}_1-\vec{v}_2$.
+
+We calculate their reduced mass 
+\begin{align}
+    \mu=\frac{m_1 m_2}{m_1 +m_2}.
+\end{align} 
+The position of the center of mass is 
+\begin{align}
+    \vec{R}_{\rm C}=\frac{m_1 \vec{r}_1+m_2 \vec{r}_2}{m_1+m_2}.
+\end{align}
+
+We choose the coordinate where the center of mass is static.
+The total energy is 
+\begin{align}
+     E=\frac{1}{2}\mu v^2-\frac{G m_1 m_2}{r}.\label{eq_Etot}
+\end{align}
+Here $v=|\vec{v}|$ and $r=|\vec{r}|$.
+
+The angular momentum is 
+\begin{align}
+    L=\vec{r}\times \mu \vec{v}.
+\end{align}
+
+The major axis is
+\begin{align}
+    a=-\frac{G m_1 m_2}{2E}.
+\end{align}
+
+The period is 
+\begin{align}
+    T^2=\frac{4 \pi^2 a^3}{G(m_1+m_2)}.
+\end{align}
+    
+The eccentricity is 
+\begin{align}
+    e=\sqrt{1+\frac{2EL^2}{\mu(Gm_1m_2)^2}}.\label{eq_eccen}
+\end{align}
+
+The maximum and minimum distance between the two particles are $r_{\rm max}=a(1+e)$ and $r_{\rm min}=a(1-e)$.
+
+The initial conditions we choose are as follows:
+$m_1=10^{6}M_{\odot}$,$m_2=10^{6}M_{\odot}$; $\vec{r}_1=(0,0,0)$, $\vec{r}_2=(10^{-5}\,{\rm kpc},0,0)$; $\vec{v}_1=(0,0,0)$, $\vec{v}_2=(0, 10^{-6}\, {\rm kpc/s},0)$.
+
+\section{Version 2}
+We generate masses for two particles as \textcolor{red}{$m_1$} and \textcolor{red}{$m_2$}, relative distance \textcolor{red}{$r$}, the eccentricity \textcolor{red}{$e=\frac{c}{a} \in [0.10,0.40)$}.
+Here we choose the coordinate at which the center of mass locates at $(0,0,0)$,
+\begin{align}
+    \vec{R}_{\rm C}&=\frac{m_1 \vec{r}_1+ m_2 \vec{r}_2}{m_1+m_2}\\
+    &=0
+\end{align}
+Thus,
+\begin{align}
+    \vec{r}_2=-\frac{m_1}{m_2}\vec{r}_1,
+\end{align}
+and 
+\begin{align}
+    \vec{r}&=\vec{r}_1-\vec{r}_2\\
+    &=\frac{m_1+m_2}{m_2}\vec{r}_1.
+\end{align}
+Thus,
+\textcolor{blue}{
+\begin{align}
+    \vec{r}_1&=\frac{m_2}{m_1+m_2}\vec{r},\\
+    \vec{r}_2&=-\frac{m_1}{m_1+m_2}\vec{r}.
+\end{align}
+}
+If we make C.O.M. (center of mass) to be static,
+\begin{align}
+    \vec{V}_{\rm C}&=\frac{m_1\vec{v}_1+m_2\vec{v}_2}{m_1+m_2}\\
+    &=0.
+\end{align}
+Similarly,
+\begin{align}
+    \vec{v}_2=-\frac{m_1}{m_2}\vec{v}_1,
+\end{align}
+and
+\begin{align}
+    \vec{v}&=\vec{v}_1-\vec{v}_2\\
+    &=\frac{m_1+m_2}{m_2}\vec{v}_1.
+\end{align}
+Thus,
+\textcolor{blue}{
+\begin{align}
+    \vec{v}_1&=\frac{m_2}{m_1+m_2}\vec{v},\\
+    \vec{v}_2&=-\frac{m_1}{m_1+m_2}\vec{v}.
+\end{align}
+}
+According to Eq. \eqref{eq_Etot}) and Eq. \eqref{eq_eccen}, we have
+\begin{align}
+    E&=\frac{1}{2}\mu v^2-\frac{G m_1 m_2}{r}\\
+    &=\frac{1}{2}\frac{m_1 m_2}{m_1+m_2}v^2-\frac{G m_1 m_2}{r},\label{eq_energyfinal}
+\end{align}
+and 
+\begin{align}
+    e^2&=1+\frac{2E L^2}{\mu(Gm_1 m_2)^2}.
+\end{align}
+Suppose $\vec{r}\perp\vec{v}$ initially which means the two particles are separating from each other most or least, we can derive total energy from eccentricity,
+\begin{align}
+    E&=\frac{\mu\left(G m_1 m_2\right)^2\left(e^2-1\right)}{2L^2}\\
+    &=\frac{\mu\left(G m_1 m_2\right)^2\left(e^2-1\right)}{2(r\mu v)^2}\\
+    &=\frac{(Gm_1 m_2)^2(e^2-1)}{2\mu (rv)^2}\\
+    &=\frac{G^2m_1 m_2(m_1+m_2)(e^2-1)}{2(rv)^2}.\label{eq_energyine}
+\end{align}
+Combine Eq. \eqref{eq_energyfinal} and Eq. \eqref{eq_energyine}, we have
+\begin{align}
+    \frac{1}{2}\frac{m_1 m_2}{m_1+m_2}v^2-\frac{G m_1 m_2}{r}&=\frac{G^2m_1 m_2(m_1+m_2)(e^2-1)}{2(rv)^2},
+\end{align}
+\begin{align}
+    \frac{1}{2}\frac{m_1 m_2}{m_1+m_2}v^4-\frac{Gm_1 m_2}{r}v^2-\frac{G^2m_1 m_2(m_1+m_2)(e^2-1)}{2r^2}&=0,\\
+    v^4-\frac{2G(m_1+m_2)}{r}v^2-\frac{G^2(m_1+m_2)^2(e^2-1)}{r^2}&=0.
+\end{align}
+\begin{align}
+    v^2&=\frac{\frac{2G(m_1+m_2)}{r}\pm \sqrt{\left[\frac{2G\left(m_1+m_2\right)}{r}\right]^2+4\frac{G^2(m_1+m_2)^2(e^2-1)}{r^2}}}{2}\\
+    &=\frac{G(m_1+m_2)}{r}(1\pm e)
+\end{align}
+Here, `$+$' and `$-$' correspond the smallest and largest initial $r$ respectively.
+
+For given $m_1$, $m_2$, $r$ and $e$,  here we choose
+\textcolor{red}{
+\begin{align}
+    v=\sqrt{\frac{G(m_1+m_2)}{r}(1-e)}.
+\end{align}
+}
+Then total energy \textcolor{red}{$E$} is determined by Eq. \eqref{eq_energyine} and $v$.
+For simplicity, we set positions and velocities at $x-y$ plane.
+Then 
+\textcolor{red}{
+\begin{align}
+    \vec{r}_1&=(\frac{m_2}{m_1+m_2}r,\, 0,\, 0),\\
+    \vec{r}_2&=(-\frac{m_1}{m_1+m_2}r,\, 0,\, 0),\\
+    \vec{v}_1&=(0,\, -\frac{m_2}{m_1+m_2}v,\, 0),\\
+    \vec{v}_2&=(0,\, \frac{m_1}{m_1+m_2}v,\, 0).
+\end{align}
+}
+
+\end{document}
