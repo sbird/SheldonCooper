@@ -11,13 +11,6 @@ Original file is located at
 
 import numpy as np
 
-# import pint
-
-# Constants
-# dt = 0.01  # Time step in years
-# T  = 1000  # Total time in years
-# step = int(T / dt)  # Number of steps
-
 
 
 def set_t(v, a, coeff=1e-3):
@@ -43,6 +36,10 @@ def evolve_position(r, v, dt):
 
 
 if __name__ == '__main__':
+    # Constants
+    dt = 0.01  # Time step in years
+    T  = 1000  # Total time in years
+    step = int(T / dt)  # Number of steps
     # Particle system dimensions
     n = 2  # Number of particles (for testing)
     r_i = np.ones((3, n))  # Initial position (3 coordinates for each particle)
