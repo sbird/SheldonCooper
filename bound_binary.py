@@ -1,38 +1,37 @@
 # Description: This script calculates the total energy, angular momentum, and period of a binary star system.
 # It is used to verify that the total energy and angular momentum are conserved over time.
 # The script also calculates the period of the binary star system.
-#Writers: Lauren, Hui, Aryana, Negin
+#Writers: Lauren, Hui, Aryana, Negin, Fangyi
 import numpy as np
 import matplotlib.pyplot as plt
 from constants import G as const_G
-# from constants import c as const_c
 from plot_3D import visualization
 
 # m = np.array([1e6,1e6])
 # r = np.array([[0,0,0],[1e-5,0,0]])
 # v = np.array([[0,0,0],[0,1e-6,0]])
 
-def choose_initial_condition(number_perticles=2):
+def choose_initial_condition(number_perticles=2): # generate initial condition for bounded two-body system
     masses = []
-    for i in range(number_perticles): masses.append(np.random.randint(1,9) * 1e6)
-    masses       = np.sort(np.array(masses))[::-1]
+    for i in range(number_perticles): masses.append(np.random.randint(1,9) * 1e6) # generate random masses
     print('Masses = ', masses)
-    distance     = np.random.randint(1,9)   * 1e-5
-    e            = np.random.randint(10,40) * 0.01
+    distance     = np.random.randint(1,9)   * 1e-5 # generate random relative distance r
+    e            = np.random.randint(10,40) * 0.01 # generate random eccentircity e in range [0.1,0.4)
     print('e = ', e)
-    v_rel        = np.sqrt(const_G*np.sum(masses)*(1-e)/distance)
-    print('v/m_tot = ', v_rel/np.sum(masses))
-    mu           = np.prod(masses) / np.sum(masses)
-    total_energy = 0.5*mu*v_rel**2 - const_G*np.prod(masses)/distance
+    v_rel        = np.sqrt(const_G*np.sum(masses)*(1-e)/distance) 
+    # calculate relative velocity from masses, r and e. We suppose vector v is perpendicular to vector r. 
+    #(1-e) corresponds to the two particles are at the largest distance initially.
+    mu           = np.prod(masses) / np.sum(masses) # calculate reduced mass
+    total_energy = 0.5*mu*v_rel**2 - const_G*np.prod(masses)/distance #calculate total energy from e, r and v.
     print('E = ', total_energy)
-    a            = -0.5 * const_G * np.prod(masses) / total_energy
+    a            = -0.5 * const_G * np.prod(masses) / total_energy # calculate the semi-major axis of the reduced system from m and total ennergy.
     print('a = ', a)
-    period       = np.sqrt((4*np.pi**2*a**3)/(const_G*np.sum(masses)))
+    period       = np.sqrt((4*np.pi**2*a**3)/(const_G*np.sum(masses))) # calculate the period
     print('T = ', period)
-    velocities   = np.array([[0,-masses[0]/np.sum(masses)*v_rel,0],[0,masses[1]/np.sum(masses)*v_rel,0]])
-    positions    = np.array([[masses[0]/np.sum(masses)*distance,0,0],[-masses[1]/np.sum(masses)*distance,0,0]])
-    angular_mom  = mu * distance * v_rel
-    # print('eccentricity: ', np.sqrt(1 + 2*total_energy*angular_mom**2 / const_G**2*mu**2))
+    # set positions and velocities on x-y plane.
+    velocities   = np.array([[0,-masses[1]/np.sum(masses)*v_rel,0],[0,masses[0]/np.sum(masses)*v_rel,0]])
+    positions    = np.array([[masses[1]/np.sum(masses)*distance,0,0],[-masses[0]/np.sum(masses)*distance,0,0]])
+    angular_mom  = mu * distance * v_rel # calculate the angular momentumn
     return masses, positions, velocities, total_energy, angular_mom
     
 
@@ -107,7 +106,7 @@ def calculate_period(masses,positions,velocities):
      tot_L=np.linalg.norm(angular_momentum(m,r,v))           # calculate the angular momentum
      elli=np.sqrt(1+2*tot_E*tot_L**2/(reduced_mass(m)*(const_G*m[0]*m[1])**2))
 
-     return T, a*(1+elli), a*(1-elli)                             # return the period, semi-major and semi-minor axis
+     return T, a*(1+elli), a*(1-elli)                             # return the period, maximum and minimum distance
 
 T = calculate_period(m,r,v)
 print("The priode of the system is period:",T[0], "years")
@@ -130,12 +129,12 @@ velocity = v
 position_matrix_binary = np.empty((2, 1, 3))
 
 #Evolution of binary system
-total_time = 0
-period_num = 3
-s = 0
+total_time = 0 # count the total evolving time
+period_num = 5 # specify the total time we want to visualize in period
+s = 0 # count the total evolving steps 
 # dt = 1e-3
 while(1):
-    if s%1000==0:
+    if s%500==0:
         energy, distance = total_energy(mass,position,velocity)
         energy_list += [energy]
         relative_positions += [distance]
@@ -144,9 +143,9 @@ while(1):
         position_matrix_binary = np.append(position_matrix_binary,position[:, np.newaxis, :],axis=1)
     # Store current velocity, acceleration, and position for each particle at time step s
     acceleration = cal_gforce(position, m)                        # Calculate acceleration
-    dt = set_t(v, acceleration, coeff=1e-4)
+    dt = set_t(v, acceleration, coeff=1e-3) # choose an adaptive delta t= min(v)/max(a)
 
-    # Evolve velocity and position using the current state
+    # Evolve velocity and position using the current state using leap frog algrithmn
     velocity_temp = evolve_velocity(velocity, acceleration, dt/2) # Update velocity 1
     position = evolve_position(position, velocity, dt)            # Update position based on the current velocity
     acceleration = cal_gforce(position, m)
@@ -156,9 +155,10 @@ while(1):
     if total_time > period_num * T[0]:
         break
 
-visualization(position=position_matrix_binary, lim_bound=(-T[1],T[1]))
+#visualization(position=position_matrix_binary, lim_bound=(-T[1],T[1]))
 
 fig,axes = plt.subplots(1, 3, figsize=(17,5))
+fig.subplots_adjust(wspace=0.3, hspace=0.3)
 time = np.array([i for i in range(len(energy_list))])
 
 ax = axes[0]
