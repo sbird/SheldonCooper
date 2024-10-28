@@ -1,7 +1,7 @@
 # Description: This script calculates the total energy, angular momentum, and period of a binary star system.
 # It is used to verify that the total energy and angular momentum are conserved over time.
 # The script also calculates the period of the binary star system.
-#Writers: Lauren, Hui, Aryana, Negin, Fangyi
+# Writers: Lauren, Hui, Aryana, Negin, Fangyi
 import numpy as np
 import matplotlib.pyplot as plt
 from constants import G as const_G  # Gravitational constant
@@ -10,7 +10,7 @@ from plot_3D import visualization   # Importing 3D plotting function for visuali
 # Function to choose initial conditions for the binary system
 def choose_initial_condition(number_particles=2):
     masses = []
-    for i in range(number_perticles): masses.append(np.random.randint(1,9) * 1e6) # generate random masses
+    for i in range(number_particles): masses.append(np.random.randint(1,9) * 1e6) # generate random masses
     print('Masses = ', masses)
 
     # Set initial separation and eccentricity
@@ -109,10 +109,10 @@ position_matrix_binary = np.empty((2, 1, 3))  # Matrix to store position data fo
 position_matrix_binary = np.empty((2, 1, 3))
 
 # Simulation parameters 
-total_time = 0               # count the total evolving time
-period_num = 5               # Number of periods to simulate
-s = 0                        # Step count 
-tracking_frequency = 500    # Frequency for calculating the parameters
+total_time = 0             # count the total evolving time
+period_num = 3             # Number of periods to simulate
+s = 0                      # Step count 
+tracking_frequency = 1000  # Frequency for calculating the parameters
 # Main evolution loop
 while(1):
     if s%tracking_frequency==0:
@@ -123,8 +123,8 @@ while(1):
         angular_momentum_list += [ang_mom]
         position_matrix_binary = np.append(position_matrix_binary,position[:, np.newaxis, :],axis=1)
     # Store current velocity, acceleration, and position for each particle at time step s
-    acceleration = cal_gforce(position, m)                        # Calculate acceleration
-    dt = set_t(v, acceleration, coeff=1e-3)
+    acceleration = cal_gforce(position, m)                           # Calculate acceleration
+    dt = set_t(v, acceleration, coeff=2e-4)
 
     # Update velocity and position using half-step method
     velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity
