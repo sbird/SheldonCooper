@@ -10,10 +10,11 @@ boundary_size = 10 * 1e-5
 mu = 0
 sigma_pos = 5 * 1e-5
 Temperature = 1e67
+mass = 10000
 
 
 # pick 10000K to make everything moving
-particles_ini = Particles_ini(n=n, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos, T=Temperature) 
+particles_ini = Particles_ini(n=n, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos, Temperature=Temperature, mass=mass) 
 # Constants
 dt = 10000  # Time step in years
 Period = 10000000  # Total time in years
@@ -21,7 +22,7 @@ step = int(Period / dt)  # Number of steps
 
 velocity = particles_ini.velocity
 print(np.sum(velocity[:,1]))
-position = particles_ini.position/10
+position = particles_ini.position
 mass = particles_ini.mass*10000
 
 position_matrix = np.empty((n, step, 3))  # Initialize position matrix to store positions at each time step
