@@ -24,7 +24,6 @@ def choose_initial_condition(number_particles=2):
 
     # Calculate relative velocity based on masses and distance
     v_rel = np.sqrt(const_G * np.sum(masses) * (1 - e) / distance)
-    print('v/m_tot = ', v_rel / np.sum(masses))
 
     # Calculate reduced mass and total energy
     mu = np.prod(masses) / np.sum(masses)
@@ -38,10 +37,10 @@ def choose_initial_condition(number_particles=2):
     print('T = ', period)
 
     # Set initial positions and velocities
-    velocities = np.array([[0, -masses[0] / np.sum(masses) * v_rel, 0],
-                           [0, masses[1] / np.sum(masses) * v_rel, 0]])
-    positions = np.array([[masses[0] / np.sum(masses) * distance, 0, 0],
-                          [-masses[1] / np.sum(masses) * distance, 0, 0]])
+    velocities = np.array([[0, -masses[1] / np.sum(masses) * v_rel, 0],
+                           [0, masses[0] / np.sum(masses) * v_rel, 0]])
+    positions = np.array([[masses[1] / np.sum(masses) * distance, 0, 0],
+                          [-masses[0] / np.sum(masses) * distance, 0, 0]])
 
     angular_mom = mu * distance * v_rel  # Calculate angular momentum
     return masses, positions, velocities, total_energy, angular_mom
@@ -115,17 +114,10 @@ position_matrix_binary = np.empty((2, 1, 3))  # Matrix to store position data fo
 total_time = 0
 period_num = 3               # Number of periods to simulate
 s = 0                        # Step count
-correction_frequency = 1000  # Frequency for resetting center of mass
 tracking_frequency = 1000    # Frequency for calculating the parameters
 
 # Main evolution loop
 while True:
-    # Every correction_frequency steps, reset the COM to prevent drift
-    if s % correction_frequency == 0:
-        cm_position, cm_velocity = center_of_mass(mass, position, velocity)
-        position -= cm_position  # Recenter positions around COM
-        # velocity -= cm_velocity  # Set COM velocity to zero
-
     # Track and store energy, angular momentum, and relative position data every tracking_frequency steps
     if s % tracking_frequency == 0:
         energy, distance = total_energy(mass, position, velocity)
