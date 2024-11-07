@@ -2,7 +2,8 @@
 from matplotlib import pyplot as plt
 from matplotlib import animation
 import numpy as np
-from scipy.stats import truncnorm
+
+from initial_conditions_3d import position_ini
 
 
 
@@ -77,15 +78,7 @@ def visualization(position, lim_bound=(0, 100), window_size=300, interval=30, fr
     plt.show()
 
 
-def position_ini(N, bound, mu, sigma):
-    # bound = bound.to('kpc').magnitude
-    a = 0 # lower truncated bound
-    b = (bound - mu) / sigma #upper truncated bound
-    x = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-    y = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-    z = truncnorm.rvs(a,b, loc=mu, scale=sigma, size=N)
-    pos = np.column_stack((x, y, z))
-    return pos
+
 
 if __name__ == '__main__':
     # we generate the initial position 50 times to make 50 fake time steps
@@ -94,7 +87,7 @@ if __name__ == '__main__':
     position_matrix = np.empty((n, step, 3))
 
     for s in range(step):   # Iterate through each time step
-        pos_temp = position_ini(N=n, bound=100, mu=50, sigma=50)
+        pos_temp = position_ini(N=n, boundary_size=100, sigma_pos=50)
         position_matrix[:, s, :] = pos_temp
 
     visualization(position_matrix)
