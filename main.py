@@ -39,7 +39,7 @@ for s in range(step):   # Iterate through each time step
     # Store updated positions in the matrix
     position_matrix[:, s, :] = position 
 
-fname= f'N{n}_logT{np.log10(Temperature):.1f}_logsigma{np.log10(sigma_pos):.1f}.gif'
+fname= f'./gif/N{n}_logT{np.log10(Temperature):.1f}_logsigma{np.log10(sigma_pos):.1f}.gif'
 # print(position_matrix)
 # Visualize the particle motion in 3D
 visualization(position_matrix, lim_bound=(-boundary_size/2, boundary_size/2), savegif=True, fname=fname)  # Call the visualization function to animate the particle motion
