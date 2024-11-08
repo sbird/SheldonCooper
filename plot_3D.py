@@ -3,7 +3,7 @@ from matplotlib import pyplot as plt
 from matplotlib import animation
 import numpy as np
 
-from initial_conditions_3d import position_ini
+from initial_conditions_3d import boltzmann_ini_positions
 
 
 
@@ -87,7 +87,7 @@ if __name__ == '__main__':
     position_matrix = np.empty((n, step, 3))
 
     for s in range(step):   # Iterate through each time step
-        pos_temp = position_ini(N=n, boundary_size=100, sigma_pos=50)
+        pos_temp = boltzmann_ini_positions(N=n, boundary_size=100, sigma_pos=50)
         position_matrix[:, s, :] = pos_temp
 
     visualization(position_matrix)
