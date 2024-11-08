@@ -6,6 +6,7 @@ from plot_3D import visualization
 
 n = 20
 boundary_size = 10 * 1e-3
+init_method = 'plummer'
 mu = 0
 sigma_pos = 5 * 1e-3
 Temperature = 1e62
@@ -13,7 +14,7 @@ mass = 1e8
 
 
 # pick 10000K to make everything moving
-particles_ini = Particles_ini(n=n, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos, Temperature=Temperature, mass=mass) 
+particles_ini = Particles_ini(n=n, init_method=init_method, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos, Temperature=Temperature, mass=mass) 
 # Constants
 dt = 5  # Time step in years
 Period = 10000  # Total time in years
@@ -38,6 +39,7 @@ for s in range(step):   # Iterate through each time step
 
     # Store updated positions in the matrix
     position_matrix[:, s, :] = position 
+
 
 fname= f'./gif/N{n}_logT{np.log10(Temperature):.1f}_logsigma{np.log10(sigma_pos):.1f}.gif'
 # print(position_matrix)
