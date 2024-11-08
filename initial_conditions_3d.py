@@ -1,17 +1,18 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.stats import truncnorm
 import pint
-from constants import k_B
+
+from constants import K_B
 
 ureg = pint.UnitRegistry()
 ureg.define('solar_mass = 1.98847e30 * kilogram')
 
-#generating the boundry size
 
 
-def velocity_ini(n, Temperature, mass, k_B):  
+def boltzmann_ini_velocities(n, Temperature, mass):  
     # Velocity dispersion (standard deviation of the velocity components)
-    sigma_v = np.sqrt((k_B * Temperature) / mass)
+    sigma_v = np.sqrt((K_B * Temperature) / mass)
 
     # Generate Maxwell-Boltzmann velocities for each particle
     # velocity of each particle in xyz coordinates, the result is in the shape of (N, 3)
@@ -20,8 +21,9 @@ def velocity_ini(n, Temperature, mass, k_B):
     return velocities
 
 
+
 #Generate random gaussian positions for each particle with units
-def position_ini(n, boundary_size, sigma_pos, mu=0):
+def boltzmann_ini_positions(n, boundary_size, sigma_pos, mu=0):
     a = (-boundary_size / 2 - mu) / sigma_pos #lower truncated bound
     b = (boundary_size / 2 - mu) / sigma_pos #upper truncated bound
     x = truncnorm.rvs(a, b, loc=mu, scale=sigma_pos, size=n)
@@ -32,62 +34,67 @@ def position_ini(n, boundary_size, sigma_pos, mu=0):
     return pos
 
 
-def position_ini_plum(n, boundary_size):
-    velocity_total = []
-    positions = []
 
+def plummer_ini_conditions(n, a):
     # Generate all random numbers used at once
-    epsilon = 1e-10
-    X1 = np.random.uniform(0, 1, n) + epsilon
-    X2, X3, X4, X5 = np.random.uniform(0, 1, (4, n)) + epsilon  # avoid r being negative
+    X1, X2, X3, X4, X5, X6, X7 = np.random.uniform(0, 1, (7, n))
 
-    # Calculate r (the distance of particles from center) and ensure it is within the boundary size
-    r = np.sqrt(X1**(-2/3) - 1)
-    valid_r = (r > 0) & (r < boundary_size)  # check valid r
-    while not np.all(valid_r):
-        X1[~valid_r] = np.random.uniform(0, 1, np.sum(~valid_r))  # get the ones that do not satisfy the condition
-        r = np.sqrt(X1**(-2/3) - 1)  # regenerate r
-        valid_r = (r > 0) & (r < boundary_size)
-    print(f'r: {r}')
-    # Calculate x, y, z positions based on r
-    z = np.abs((1 - 2 * X2) * r)
-    xy_plane_radius = np.sqrt(r**2 - z**2)
-    x = np.abs(xy_plane_radius * np.cos(2 * np.pi * X3))
-    y = np.abs(xy_plane_radius * np.sin(2 * np.pi * X3))
+    # Calculate the distance of particles from center, Eq(A2)
+    r = (X1 ** (-2 / 3) - 1) ** (-1 / 2) 
+    assert np.all(r > 0), "r is not greater than 0"
+
+    # Calculate x, y, z positions based on r, Eq(A3)
+    z = (1 - 2 * X2) * r
+    x = np.sqrt(r ** 2 - z ** 2) * np.cos(2 * np.pi * X3)
+    y = np.sqrt(r ** 2 - z ** 2) * np.sin(2 * np.pi * X3)
 
     # Ensure x^2 + y^2 + z^2 = r^2
     assert np.allclose(x**2 + y**2 + z**2, r**2), "x^2 + y^2 + z^2 does not equal r^2"
 
     # Calculate escape velocity
-    V_esc = np.sqrt(2) * (1 + r**2)**(-1/4)
+    V_esc = np.sqrt(2) * (1 + r ** 2) ** (-1 / 4) # Eq(A4)
 
     # Calculate q and ensure the condition is met
-    valid_q = 0.1 * X5 < X4**2 * (1 - X4**2)**(7/2)
+    valid_q = 0.1 * X5 < X4 ** 2 * (1 - X4 ** 2) ** (7 / 2) # Eq(A5)
     while not np.all(valid_q):
-        X4[~valid_q] = np.random.uniform(0, 1, np.sum(~valid_q)) + epsilon  # get the ones that do not satisfy the condition
-        X5[~valid_q] = np.random.uniform(0, 1, np.sum(~valid_q)) + epsilon  # get the ones that do not satisfy the condition
-        valid_q = 0.1 * X5 < X4**2 * (1 - X4**2)**(7/2)  # regenerate q
+        X4[~valid_q] = np.random.uniform(0, 1, np.sum(~valid_q))  # get the ones that do not satisfy the condition
+        X5[~valid_q] = np.random.uniform(0, 1, np.sum(~valid_q))  # get the ones that do not satisfy the condition
+        valid_q = 0.1 * X5 < X4 ** 2 * (1 - X4 ** 2) ** (7 / 2)  # regenerate q
 
-    q = X4
-    V = V_esc * q
+    assert np.all(0.1 * X5 < X4 ** 2 * (1 - X4 ** 2) ** (7 / 2)), "q condition not met"
+    V = V_esc * X4
 
-    positions = np.column_stack((x, y, z))  # each row represents the position of a particle (x, y, z)
-    velocity_total = V.tolist()
+    w = (1 - 2 * X6) * V
+    u = np.sqrt(V ** 2 - w ** 2) * np.cos(2 * np.pi * X7)
+    v = np.sqrt(V ** 2 - w ** 2) * np.sin(2 * np.pi * X7)
 
-    return positions, velocity_total
+    ini_positions = np.column_stack((x, y, z))  # each row represents the position of a particle (x, y, z)
+    ini_velocities = np.column_stack((u, v, w))  # each row represents the velocity of a particle (u, v, w)
 
+    ini_positions *= a # scale the positions to the boundary size
+    ini_velocities /= np.sqrt(a) # scale the velocities to according to the boundary size
+
+    return ini_positions, ini_velocities
 
 
 #Now, we make a class to store all of these initial conditions (mass, positions, velocities)
 class Particles_ini:
-    def __init__(self, n=100, boundary_size=100, mu=0, sigma_pos=50, Temperature=1e20, mass=1):
+    def __init__(self, n=100, boundary_size=100, init_method='plummer', mu=0, sigma_pos=50, Temperature=1e20, mass=1):
         #calling the position_ini funtion to generate the location of each particle in xyz coordinates,
         #the result is in the shape of (N, 3)
         #This size also depends on the phase of galaxy formation,
         #but we tried to choose the aprroximate maximum possible size of a primordial galaxy formaing gas cloud
-        self.position = position_ini(n=n, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos)
-        self.velocity = velocity_ini(n=n, Temperature=Temperature, mass=mass, k_B = k_B)
         self.mass = np.ones(n) * mass
+
+        if init_method == 'plummer':
+            # choose a = boundary_size / 40 to ensure that almost all (0.996) the particles are inside the boundary
+            self.position, self.velocity = plummer_ini_conditions(n=n, a=boundary_size/40)
+        elif init_method == 'boltzmann':
+            self.position = boltzmann_ini_positions(n=n, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos)
+            self.velocity = boltzmann_ini_velocities(n=n, Temperature=Temperature, mass=mass)
+        else: 
+            raise ValueError("Invalid initial conditions method")
+
 
     def __getitem__(self, index):
         return {
@@ -95,7 +102,6 @@ class Particles_ini:
             'velocity': self.velocity[index],
             'mass': self.mass[index] if not np.isscalar(self.mass) else self.mass
         }
-
 
 #Now we make a function to keep every particle inside the defined boundary
 #This needs to be run everytime positions are updated
@@ -111,15 +117,36 @@ def boundary_cond(particles):
 
     particles = particles_in
     
-    
 ### test code
 if __name__ == "__main__":
-    n = 3  
-    boundary_size = 10
+    n = 1000000
+    a = 10
 
-    positions, velocities = position_ini_plum(n, boundary_size)
+    positions, velocities = plummer_ini_conditions(n, a)
+    distance = np.sqrt(positions[:, 0] ** 2 + positions[:, 1] ** 2 + positions[:, 2] ** 2)
+    bins, bin_edges = np.histogram(distance, bins=100000)
+    r = np.linspace(0, bin_edges[-1], 100000)
 
-    print("Positions:")
-    print(positions)
-    print("\nVelocities:")
-    print(velocities)
+    fig, ax = plt.subplots(1, 2, figsize=(10, 5))
+
+    f_m = r ** 3 / (r ** 2 + a ** 2) ** (3 / 2) # Eq(2)
+    m_r = bins
+    m_r = np.cumsum(m_r) / np.sum(m_r)
+    ax[0].plot(r, f_m, label='analytical')
+    ax[0].plot(bin_edges[:-1], m_r, label='numerical')
+    ax[0].legend()
+    ax[0].set_xlim(0, 10 * a)
+    ax[0].set_xlabel('r')
+    ax[0].set_ylabel('M(r)')
+
+    bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+    rho_r = bins / (4 * np.pi * (bin_centers ** 2) * np.diff(bin_edges))
+    f_rho = (1 + r ** 2 / a ** 2) ** (-5 / 2) * 3 / (4 * np.pi) * n / a ** 3 # Eq(1)
+    ax[1].plot(bin_edges[:-1], rho_r, label='numerical')
+    ax[1].plot(r, f_rho, label='analytical')
+    ax[1].legend()
+    ax[1].set_xlim(0, 3 * a)
+    ax[1].set_xlabel('r')
+    ax[1].set_ylabel('rho(r)')
+    plt.savefig('plummer_ini_conditions.png')
+    plt.show()
