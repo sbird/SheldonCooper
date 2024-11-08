@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from constants import G as const_G  # Gravitational constant
 from plot_3D import visualization   # Importing 3D plotting function for visualization
 
-N = 5
+N = 10
 
 def choose_initial_condition(number_particles=5):
     # Generate random masses for each particle
@@ -121,7 +121,7 @@ position_matrix_binary = np.empty((N, 1, 3))  # Matrix to store position data fo
 # Simulation parameters 
 total_time = 0             # count the total evolving time
 s = 0                      # Step count 
-tracking_frequency = 50  # Frequency for calculating the parameters
+tracking_frequency = 10  # Frequency for calculating the parameters
 # Main evolution loop
 while(1):
     if s%tracking_frequency==0:
@@ -133,7 +133,7 @@ while(1):
         position_matrix_binary = np.append(position_matrix_binary,position[:, np.newaxis, :],axis=1)
     # Store current velocity, acceleration, and position for each particle at time step s
     acceleration = cal_gforce(position, m)                           # Calculate acceleration
-    dt = set_t(v, acceleration, coeff=1e-3)
+    dt = set_t(v, acceleration, coeff=1e-1)
 
     # Update velocity and position using half-step method
     velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity
@@ -146,13 +146,11 @@ while(1):
     s += 1
 
     # End simulation if total time exceeds the set number of periods
-    if total_time > 500:
+    if total_time > 200:
         break
 
-print(dt)
-
 # Visualization of position evolution
-visualization(position=position_matrix_binary, lim_bound=(-5e-5,5e-5))
+visualization(position=position_matrix_binary, lim_bound=(-5e-5,5e-5), savegif=True, fname='flower.gif')
 
 # # Plot and save energy and angular momentum data over time
 # fig, axes = plt.subplots(1, 3, figsize=(17, 5))
