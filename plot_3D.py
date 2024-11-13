@@ -7,7 +7,7 @@ from initial_conditions_3d import boltzmann_ini_positions
 
 
 
-def visualization(position, lim_bound=(0, 100), window_size=300, interval=30, frame_rotation=0., savegif=False, fname=None):
+def visualization(position, lim_bound=(-100, 100), window_size=300, interval=30, frame_rotation=0., savegif=False, fname=None):
     # Set up figure & 3D axis for animation
     fig = plt.figure()
     ax = fig.add_axes([0, 0, 1, 1], projection='3d')
@@ -66,10 +66,10 @@ def visualization(position, lim_bound=(0, 100), window_size=300, interval=30, fr
     anim = animation.FuncAnimation(fig, animate, init_func=init,
                                 frames=position.shape[1], interval=interval, blit=True)
     
-    # save the animation 
+    # save the animation automatically to /gif folder
     if savegif and fname is not None:
         if fname.endswith('.gif'):
-            anim.save(fname, writer='pillow')
+            anim.save('./gif/'+fname, writer='pillow')
         else:
             raise ValueError('Only .gif format is supported for saving animation.')
     elif savegif and fname is None:
