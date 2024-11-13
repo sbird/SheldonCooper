@@ -130,17 +130,17 @@ def move_particle(particle, root):
     if not np.allclose(old_position, particle.position):
         insert_particle(root, particle)
 
-# Remove empty leaves from the octree
-def clip_tree(node):
-    if node is None:
-        return
-    if node.is_leaf():
-        if node.particle is None:
-            return None  # Remove empty leaf
-    else:
-        for i in range(8):
-            node.children[i] = clip_tree(node.children[i])
-    return node
+# # Remove empty leaves from the octree
+# def clip_tree(node):
+#     if node is None:
+#         return
+#     if node.is_leaf():
+#         if node.particle is None:
+#             return None  # Remove empty leaf
+#     else:
+#         for i in range(8):
+#             node.children[i] = clip_tree(node.children[i])
+#     return node
 
 if __name__ == "__main__":
     num_particles = 1000
