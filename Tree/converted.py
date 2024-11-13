@@ -2,8 +2,13 @@ import random
 import math
 import time
 from typing import List
+import sys
+import os
+
+# Add the directory to sys.path
+# Change the path here!
+sys.path.append('/Users/aryanahaghjoo/Documents/GitHub/SheldonCooper')
 from constants import G as const_G
-#const_G = 1.0  # Gravitational constant
 
 class Node:
     def __init__(self, mass: float, mposition: List[float], lowerbound: List[float], upperbound: List[float]):
