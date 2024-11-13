@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 from constants import G as const_G  # Gravitational constant
 from plot_3D import visualization   # Importing 3D plotting function for visualization
 
-N = 10
+# N = 10
 
 def choose_initial_condition(number_particles=5):
     # Generate random masses for each particle
@@ -35,8 +35,8 @@ def choose_initial_condition(number_particles=5):
     final_com_position = np.sum(masses[:, None] * positions, axis=0) / total_mass
     final_com_velocity = np.sum(masses[:, None] * velocities, axis=0) / total_mass
 
-    print("Final Center of Mass Position (r_com):", final_com_position)
-    print("Final Center of Mass Velocity (v_com):", final_com_velocity)
+    # print("Final Center of Mass Position (r_com):", final_com_position)
+    # print("Final Center of Mass Velocity (v_com):", final_com_velocity)
 
     # Calculate reduced mass
     mu = np.prod(masses) / np.sum(masses)
@@ -54,7 +54,7 @@ def choose_initial_condition(number_particles=5):
     return masses, positions, velocities, total_energy
 
 # Initialize system parameters
-m, r, v, E0 = choose_initial_condition(N)
+# m, r, v, E0 = choose_initial_condition(N)
 
 # # Function to calculate center of mass (position and velocity)
 # def center_of_mass(masses, positions, velocities):
@@ -117,7 +117,7 @@ from Force_Nbody import cal_gforce
 
 
 # Main evolution loop
-def evolution_loop(N,visualize=True):
+def evolution_loop(N,end_time,visualize=True):
     # Set initial values for mass, position, and velocity
     # Matrix to store position data for visualization
     mass, position, velocity, energy = choose_initial_condition(N)
@@ -128,7 +128,7 @@ def evolution_loop(N,visualize=True):
     s = 0                      # Step count 
     tracking_frequency = 10  # Frequency for calculating the parameters
     while(1):
-        if int(total_time)%tracking_frequency==0:
+        if s%tracking_frequency==0:
             # energy, distance = total_energy(mass,position,velocity)
             # energy_list += [energy]
             # relative_positions += [distance]
@@ -136,13 +136,13 @@ def evolution_loop(N,visualize=True):
             # angular_momentum_list += [ang_mom]
             position_matrix_binary = np.append(position_matrix_binary,position[:, np.newaxis, :],axis=1)
         # Store current velocity, acceleration, and position for each particle at time step s
-        acceleration = cal_gforce(position, m)                           # Calculate acceleration
-        dt = set_t(v, acceleration, coeff=1e-2)
+        acceleration = cal_gforce(position, mass)                           # Calculate acceleration
+        dt = set_t(velocity, acceleration, coeff=2e-2)
 
         # Update velocity and position using half-step method
         velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity
         position = evolve_position(position, velocity, dt)               # Update position
-        acceleration = cal_gforce(position, m)                           # Recalculate force
+        acceleration = cal_gforce(position, mass)                           # Recalculate force
         velocity = evolve_velocity(velocity_temp, acceleration, dt / 2)  # Finalize velocity
 
         # Update total time and step count
@@ -150,7 +150,7 @@ def evolution_loop(N,visualize=True):
         s += 1
 
         # End simulation if total time exceeds the set number of periods
-        if total_time > 200:
+        if total_time > end_time:
             break
 
 # Visualization of position evolution
@@ -185,4 +185,3 @@ def evolution_loop(N,visualize=True):
 
 # # Save plot and finish
 # plt.savefig("binary_conserved.png")
-print('Done!')

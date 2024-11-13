@@ -6,7 +6,7 @@ from plot_3D import visualization
 from bound_binary import choose_initial_condition, evolution_loop
 
 
-evolution_loop(N=5)
+evolution_loop(N=5,end_time=500)
 # n = 20
 # boundary_size = 10 * 1e-3
 # init_method = 'plummer'
