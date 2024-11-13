@@ -113,44 +113,51 @@ from Force_Nbody import cal_gforce
 # relative_positions = []
 
 # Set initial values for mass, position, and velocity
-mass = m
-position = r
-velocity = v
-position_matrix_binary = np.empty((N, 1, 3))  # Matrix to store position data for visualization
+  # Matrix to store position data for visualization
 
-# Simulation parameters 
-total_time = 0             # count the total evolving time
-s = 0                      # Step count 
-tracking_frequency = 10  # Frequency for calculating the parameters
+
 # Main evolution loop
-while(1):
-    if s%tracking_frequency==0:
-        # energy, distance = total_energy(mass,position,velocity)
-        # energy_list += [energy]
-        # relative_positions += [distance]
-        # ang_mom = angular_momentum(mass,position,velocity)
-        # angular_momentum_list += [ang_mom]
-        position_matrix_binary = np.append(position_matrix_binary,position[:, np.newaxis, :],axis=1)
-    # Store current velocity, acceleration, and position for each particle at time step s
-    acceleration = cal_gforce(position, m)                           # Calculate acceleration
-    dt = set_t(v, acceleration, coeff=1e-1)
+def evolution_loop(N,visualize=True):
+    # Set initial values for mass, position, and velocity
+    # Matrix to store position data for visualization
+    mass, position, velocity, energy = choose_initial_condition(N)
+    position_matrix_binary = np.empty((N, 1, 3))
 
-    # Update velocity and position using half-step method
-    velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity
-    position = evolve_position(position, velocity, dt)               # Update position
-    acceleration = cal_gforce(position, m)                           # Recalculate force
-    velocity = evolve_velocity(velocity_temp, acceleration, dt / 2)  # Finalize velocity
+    # Simulation parameters 
+    total_time = 0             # count the total evolving time
+    s = 0                      # Step count 
+    tracking_frequency = 10  # Frequency for calculating the parameters
+    while(1):
+        if int(total_time)%tracking_frequency==0:
+            # energy, distance = total_energy(mass,position,velocity)
+            # energy_list += [energy]
+            # relative_positions += [distance]
+            # ang_mom = angular_momentum(mass,position,velocity)
+            # angular_momentum_list += [ang_mom]
+            position_matrix_binary = np.append(position_matrix_binary,position[:, np.newaxis, :],axis=1)
+        # Store current velocity, acceleration, and position for each particle at time step s
+        acceleration = cal_gforce(position, m)                           # Calculate acceleration
+        dt = set_t(v, acceleration, coeff=1e-2)
 
-    # Update total time and step count
-    total_time += dt
-    s += 1
+        # Update velocity and position using half-step method
+        velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity
+        position = evolve_position(position, velocity, dt)               # Update position
+        acceleration = cal_gforce(position, m)                           # Recalculate force
+        velocity = evolve_velocity(velocity_temp, acceleration, dt / 2)  # Finalize velocity
 
-    # End simulation if total time exceeds the set number of periods
-    if total_time > 200:
-        break
+        # Update total time and step count
+        total_time += dt
+        s += 1
+
+        # End simulation if total time exceeds the set number of periods
+        if total_time > 200:
+            break
 
 # Visualization of position evolution
-visualization(position=position_matrix_binary, lim_bound=(-5e-5,5e-5), savegif=True, fname='flower.gif')
+    if visualize == True:
+        visualization(position=position_matrix_binary, lim_bound=(-9e-5,9e-5), savegif=True, fname='flower.gif')
+    else:
+        return position_matrix_binary
 
 # # Plot and save energy and angular momentum data over time
 # fig, axes = plt.subplots(1, 3, figsize=(17, 5))
