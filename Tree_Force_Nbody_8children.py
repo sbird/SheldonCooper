@@ -124,20 +124,28 @@ def print_tree(node, depth=0):
             print_tree(child, depth + 1)
 
 def acc_cal(position, mass, acc, box_size):
-   root = OctreeNode([box_size / 2] * 3, box_size)
+   root = OctreeNode([0] * 3, box_size)
    num_particles=len(mass)
    for particle in range(num_particles):
-        insert_particle(root, mass, position, particle)
+        if position[particle][0]>=-box_size/2 and position[particle][0]<box_size/2 and\
+        position[particle][1]>=-box_size/2 and position[particle][1]<box_size/2 and\
+        position[particle][2]>=-box_size/2 and position[particle][2]<box_size/2:
+            insert_particle(root, mass, position, particle)
    for particle in range(num_particles):
-        acc[particle]= calculate_force(particle, mass[particle], acc[particle], position[particle], root, num_particles)   
+        if position[particle][0]>=-box_size/2 and position[particle][0]<box_size/2 and\
+        position[particle][1]>=-box_size/2 and position[particle][1]<box_size/2 and\
+        position[particle][2]>=-box_size/2 and position[particle][2]<box_size/2:
+            acc[particle]= calculate_force(particle, mass[particle], acc[particle], position[particle], root, num_particles)
+        else:
+            acc[particle]=0
    return acc
   
          
 
 if __name__ == "__main__":
-    num_particles = 1000
+    num_particles = 100
     box_size = 100.0
-    root = OctreeNode([box_size / 2] * 3, box_size)
+    root = OctreeNode([0] * 3, box_size)
 
     # Generate particles with random positions
     #particles = []
@@ -147,7 +155,7 @@ if __name__ == "__main__":
     for i in range(num_particles): 
         mass.append(1.0)
         acc.append(np.zeros(3))
-        position.append(np.random.uniform(0, box_size, 3))
+        position.append(np.random.uniform(-box_size/2+1, box_size/2, 3))
         #particles.append(Particle(1.0, position, np.zeros(3), np.zeros(3), i))
     position=np.array(position)
     mass=np.array(mass)
@@ -163,6 +171,14 @@ if __name__ == "__main__":
     start_time = time.time()
     for particle in range(num_particles):
         force = calculate_force(particle, mass[particle], acc[particle], position[particle], root, num_particles)
+        print(particle,":",force)
+    elapsed_time = time.time() - start_time
+    print(f"Octree Force Calculation Time = {elapsed_time:.5f} seconds")
+
+    start_time = time.time()
+    acc_cal(position, mass, acc, box_size)
+    for i in range(num_particles):
+        print(i,":",acc[i])
     elapsed_time = time.time() - start_time
     print(f"Octree Force Calculation Time = {elapsed_time:.5f} seconds")
 
