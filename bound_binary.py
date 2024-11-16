@@ -149,7 +149,7 @@ def evolution_loop(N,end_time,m,r,v,boundary_size,visualize=True):
         # Update velocity and position using half-step method
         velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity
         position = evolve_position(position, velocity, dt)               # Update position
-        acceleration = cal_gforce(position, mass)                           # Recalculate force
+        acceleration = cal_gforce(position, mass)                        # Recalculate force
         velocity = evolve_velocity(velocity_temp, acceleration, dt / 2)  # Finalize velocity
         # print(velocity,acceleration)
         # Update total time and step count
@@ -166,7 +166,7 @@ def evolution_loop(N,end_time,m,r,v,boundary_size,visualize=True):
         visualization(position=position_matrix_binary, lim_bound=(-boundary_size,boundary_size), savegif=True, fname='flower.gif') # remember to divide boundary by 2 later
     else:
         return position_matrix_binary
-    print(dt_array)
+    # print(dt_array)
 # # Plot and save energy and angular momentum data over time
 # fig, axes = plt.subplots(1, 3, figsize=(17, 5))
 # fig.subplots_adjust(wspace=0.3, hspace=0.3)

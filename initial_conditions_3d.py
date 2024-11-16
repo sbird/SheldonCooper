@@ -39,7 +39,7 @@ def plummer_ini_conditions(n, boundary_size, mass):
     # Generate all random numbers used at once
     X1, X2, X3, X4, X5, X6, X7 = np.random.uniform(0, 1, (7, n))
     # choose a = boundary_size / 40 to ensure that almost all (0.996) the particles are inside the boundary initially
-    a = boundary_size / 40 
+    a = boundary_size / 10 
 
     # Calculate the distance of particles from center, Eq(A2)
     k = (X1 ** (-2 / 3) - 1) ** (-1 / 2) 
