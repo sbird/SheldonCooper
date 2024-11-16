@@ -4,12 +4,13 @@ from sc_time_evolution import evolve_position, evolve_velocity
 from Force_Nbody import cal_gforce
 from plot_3D import visualization
 from bound_binary import choose_initial_condition, evolution_loop
+from Tree_Force_Nbody_8children import calculate_force
 
 
 number_particles = 5
-boundary = 1
+boundary = 1e-5
 
-particles_ini = Particles_ini(n=number_particles, boundary_size=boundary, init_method='plummer', mu=0, sigma_pos=50, Temperature=1e20, mass=1, diff_mass=False) 
+particles_ini = Particles_ini(n=number_particles, boundary_size=boundary, init_method='plummer', mu=0, sigma_pos=50, Temperature=1e20, mass=1000, diff_mass=False) 
 
 
 # n = 20
