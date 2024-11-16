@@ -35,7 +35,7 @@ def boltzmann_ini_positions(n, boundary_size, sigma_pos, mu=0):
 
 
 
-def plummer_ini_conditions(n, a):
+def plummer_ini_conditions(n, boundary_size):
     # Generate all random numbers used at once
     X1, X2, X3, X4, X5, X6, X7 = np.random.uniform(0, 1, (7, n))
 
@@ -71,24 +71,28 @@ def plummer_ini_conditions(n, a):
     ini_positions = np.column_stack((x, y, z))  # each row represents the position of a particle (x, y, z)
     ini_velocities = np.column_stack((u, v, w))  # each row represents the velocity of a particle (u, v, w)
 
-    ini_positions *= a # scale the positions to the boundary size
-    ini_velocities /= np.sqrt(a) # scale the velocities to according to the boundary size
+    # ini_positions *= boundary_size/2 # scale the positions to the boundary size
+    # ini_velocities /= np.sqrt(boundary_size/2) # scale the velocities to according to the boundary size
 
     return ini_positions, ini_velocities
 
 
 #Now, we make a class to store all of these initial conditions (mass, positions, velocities)
 class Particles_ini:
-    def __init__(self, n=100, boundary_size=100, init_method='plummer', mu=0, sigma_pos=50, Temperature=1e20, mass=1):
+    def __init__(self, n=100, boundary_size=100, init_method='plummer', mu=0, sigma_pos=50, Temperature=1e20, mass=1, diff_mass=True):
         #calling the position_ini funtion to generate the location of each particle in xyz coordinates,
         #the result is in the shape of (N, 3)
         #This size also depends on the phase of galaxy formation,
         #but we tried to choose the aprroximate maximum possible size of a primordial galaxy formaing gas cloud
-        self.mass = np.ones(n) * mass
+        
+        if diff_mass == True:
+            self.mass = np.random.randint(1, 9, size=n) * 1e6
+        else:
+            self.mass = np.ones(n) * mass
 
         if init_method == 'plummer':
             # choose a = boundary_size / 40 to ensure that almost all (0.996) the particles are inside the boundary
-            self.position, self.velocity = plummer_ini_conditions(n=n, a=boundary_size/40)
+            self.position, self.velocity = plummer_ini_conditions(n=n, boundary_size=boundary_size)
         elif init_method == 'boltzmann':
             self.position = boltzmann_ini_positions(n=n, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos)
             self.velocity = boltzmann_ini_velocities(n=n, Temperature=Temperature, mass=mass)
