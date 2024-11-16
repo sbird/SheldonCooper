@@ -123,6 +123,16 @@ def print_tree(node, depth=0):
         for child in node.children:
             print_tree(child, depth + 1)
 
+def acc_cal(position, mass, acc, box_size):
+   root = OctreeNode([box_size / 2] * 3, box_size)
+   num_particles=len(mass)
+   for particle in range(num_particles):
+        insert_particle(root, mass, position, particle)
+   for particle in range(num_particles):
+        acc[particle]= calculate_force(particle, mass[particle], acc[particle], position[particle], root, num_particles)   
+   return acc
+  
+         
 
 if __name__ == "__main__":
     num_particles = 1000
