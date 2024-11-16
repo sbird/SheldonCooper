@@ -43,30 +43,30 @@ class Particle:
                 self.acc += const_G * other.mass * del_pos / rr**3  # Acceleration due to gravity
 
 # Insert a particle into the octree
-def insert_particle(node, particle):
+def insert_particle(node, mass, position, particle):
     if node.is_leaf():
         if node.particle is None:
             # If the node is empty, place the particle here
             node.particle = particle
-            node.mass = particle.mass
-            node.mass_center = particle.position
+            node.mass = mass[particle]
+            node.mass_center = position[particle]
         else:
             # If a particle already exists, subdivide the node
             existing_particle = node.particle
             node.particle = None  # Clear the leaf status
             subdivide_node(node)  # Create child nodes
-            insert_particle(node, existing_particle)  # Reinsert the existing particle
-            insert_particle(node, particle)  # Insert the new particle
+            insert_particle(node, mass, position, existing_particle)  # Reinsert the existing particle
+            insert_particle(node, mass, position, particle)  # Insert the new particle
     else:
         # Update mass and center of mass
-        node.mass += particle.mass
-        node.mass_center = (node.mass_center * (node.mass - particle.mass) + particle.mass * particle.position) / node.mass
+        node.mass += mass[particle]
+        node.mass_center = (node.mass_center * (node.mass - mass[particle]) + mass[particle] * position[particle]) / node.mass
         # Determine the appropriate child and insert the particle
-        index = get_octant_index(node, particle.position)
+        index = get_octant_index(node, position[particle])
         if node.children[index] is None:
             child_center = get_child_center(node.center, node.size / 2, index)
             node.children[index] = OctreeNode(child_center, node.size / 2)
-        insert_particle(node.children[index], particle)
+        insert_particle(node.children[index], mass, position, particle)
 
 # Subdivide a node into 8 children
 def subdivide_node(node):
@@ -89,16 +89,16 @@ def get_child_center(center, size, index):
     return center + offset
 
 # Calculate gravitational force on a particle using the Barnes-Hut method
-def calculate_force(particle, node, num_par, theta=0.5, coe=2e-3):
-    if node is None or node.mass == 0 or (node.is_leaf() and node.particle.seq == particle.seq):
+def calculate_force(par, mass, acc, position, node, num_par, theta=0.5, coe=2e-3):
+    if node is None or node.mass == 0 or (node.is_leaf() and node.particle == par):
         return np.zeros(3)
 
-    displacement = node.mass_center - particle.position
+    displacement = node.mass_center - position
     distance = np.linalg.norm(displacement) + 1e-10  # Avoid division by zero
 
-    length_acc = np.linalg.norm(particle.acc)
+    length_acc = np.linalg.norm(acc)
     if length_acc != 0:
-        theta = np.sqrt(coe * length_acc / (const_G * num_par * particle.mass)) * distance
+        theta = np.sqrt(coe * length_acc / (const_G * num_par * mass)) * distance
     if node.is_leaf() or (node.size / distance < theta):
         # Treat the node as a single mass
         return const_G * node.mass * displacement / distance**3
@@ -107,7 +107,7 @@ def calculate_force(particle, node, num_par, theta=0.5, coe=2e-3):
         force = np.zeros(3)
         for child in node.children:
             if child is not None:
-                force += calculate_force(particle, child, num_par, theta, coe)
+                force += calculate_force(par, mass, acc, position, child, num_par, theta, coe)
         return force
 
 # Print the structure of the octree
@@ -123,24 +123,6 @@ def print_tree(node, depth=0):
         for child in node.children:
             print_tree(child, depth + 1)
 
-# Move a particle and update its position in the tree
-def move_particle(particle, root):
-    old_position = particle.position.copy()
-    particle.position += particle.vel + 0.5 * particle.acc  # Simple Euler integration
-    if not np.allclose(old_position, particle.position):
-        insert_particle(root, particle)
-
-# # Remove empty leaves from the octree
-# def clip_tree(node):
-#     if node is None:
-#         return
-#     if node.is_leaf():
-#         if node.particle is None:
-#             return None  # Remove empty leaf
-#     else:
-#         for i in range(8):
-#             node.children[i] = clip_tree(node.children[i])
-#     return node
 
 if __name__ == "__main__":
     num_particles = 1000
@@ -148,29 +130,38 @@ if __name__ == "__main__":
     root = OctreeNode([box_size / 2] * 3, box_size)
 
     # Generate particles with random positions
-    particles = []
-    for i in range(num_particles):
-        position = np.random.uniform(0, box_size, 3)
-        particles.append(Particle(1.0, position, np.zeros(3), np.zeros(3), i))
+    #particles = []
+    position=[]
+    mass = []
+    acc = []
+    for i in range(num_particles): 
+        mass.append(1.0)
+        acc.append(np.zeros(3))
+        position.append(np.random.uniform(0, box_size, 3))
+        #particles.append(Particle(1.0, position, np.zeros(3), np.zeros(3), i))
+    position=np.array(position)
+    mass=np.array(mass)
+    acc=np.array(acc)
 
     # Insert particles into the octree
-    for particle in particles:
-        insert_particle(root, particle)
+    for particle in range(num_particles):
+        insert_particle(root,mass,position,particle)
+        #insert_particle(root, particle)
 
     # Compare force calculation times
     print("Calculating forces using Octree...")
     start_time = time.time()
-    for particle in particles:
-        force = calculate_force(particle, root, num_particles)
+    for particle in range(num_particles):
+        force = calculate_force(particle, mass[particle], acc[particle], position[particle], root, num_particles)
     elapsed_time = time.time() - start_time
     print(f"Octree Force Calculation Time = {elapsed_time:.5f} seconds")
 
-    print("Calculating forces using O(N²) method...")
-    start_time = time.time()
-    for particle in particles:
-        particle.cal_gforce(particles)
-    elapsed_time = time.time() - start_time
-    print(f"O(N²) Force Calculation Time = {elapsed_time:.5f} seconds")
+    #print("Calculating forces using O(N²) method...")
+    #start_time = time.time()
+    #for particle in range(num_particles):
+        #particle.cal_gforce(particles)
+    #elapsed_time = time.time() - start_time
+    #print(f"O(N²) Force Calculation Time = {elapsed_time:.5f} seconds")
 
     # Uncomment to print the octree structure
     # print_tree(root)
