@@ -117,16 +117,21 @@ from Force_Nbody import cal_gforce
 
 
 # Main evolution loop
-def evolution_loop(N,end_time,visualize=True):
+def evolution_loop(N,end_time,m,r,v,boundary_size,visualize=True):
     # Set initial values for mass, position, and velocity
     # Matrix to store position data for visualization
-    mass, position, velocity, energy = choose_initial_condition(N)
+    # mass, position, velocity, energy = choose_initial_condition(N)
+    mass = m
+    position = r 
+    velocity = v 
+     
     position_matrix_binary = np.empty((N, 1, 3))
 
     # Simulation parameters 
     total_time = 0             # count the total evolving time
     s = 0                      # Step count 
     tracking_frequency = 10  # Frequency for calculating the parameters
+    # dt_array = []
     while(1):
         if s%tracking_frequency==0:
             # energy, distance = total_energy(mass,position,velocity)
@@ -137,16 +142,19 @@ def evolution_loop(N,end_time,visualize=True):
             position_matrix_binary = np.append(position_matrix_binary,position[:, np.newaxis, :],axis=1)
         # Store current velocity, acceleration, and position for each particle at time step s
         acceleration = cal_gforce(position, mass)                           # Calculate acceleration
-        dt = set_t(velocity, acceleration, coeff=2e-2)
+        # dt = set_t(velocity, acceleration, coeff=1e-3)
+        # dt_array += [dt]
+        dt = 0.01
 
         # Update velocity and position using half-step method
         velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity
         position = evolve_position(position, velocity, dt)               # Update position
         acceleration = cal_gforce(position, mass)                           # Recalculate force
         velocity = evolve_velocity(velocity_temp, acceleration, dt / 2)  # Finalize velocity
-
+        # print(velocity,acceleration)
         # Update total time and step count
         total_time += dt
+        # print(dt)
         s += 1
 
         # End simulation if total time exceeds the set number of periods
@@ -155,10 +163,10 @@ def evolution_loop(N,end_time,visualize=True):
 
 # Visualization of position evolution
     if visualize == True:
-        visualization(position=position_matrix_binary, lim_bound=(-9e-5,9e-5), savegif=True, fname='flower.gif')
+        visualization(position=position_matrix_binary, lim_bound=(-boundary_size,boundary_size), savegif=True, fname='flower.gif') # remember to divide boundary by 2 later
     else:
         return position_matrix_binary
-
+    print(dt_array)
 # # Plot and save energy and angular momentum data over time
 # fig, axes = plt.subplots(1, 3, figsize=(17, 5))
 # fig.subplots_adjust(wspace=0.3, hspace=0.3)

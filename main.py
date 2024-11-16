@@ -6,7 +6,12 @@ from plot_3D import visualization
 from bound_binary import choose_initial_condition, evolution_loop
 
 
-evolution_loop(N=5,end_time=500)
+number_particles = 5
+boundary = 1
+
+particles_ini = Particles_ini(n=number_particles, boundary_size=boundary, init_method='plummer', mu=0, sigma_pos=50, Temperature=1e20, mass=1, diff_mass=False) 
+
+
 # n = 20
 # boundary_size = 10 * 1e-3
 # init_method = 'plummer'
@@ -17,17 +22,20 @@ evolution_loop(N=5,end_time=500)
 
 
 # # pick 10000K to make everything moving
-# particles_ini = Particles_ini(n=n, init_method=init_method, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos, Temperature=Temperature, mass=mass) 
 # # Constants
 # dt = 5  # Time step in years
 # Period = 10000  # Total time in years
 # step = int(Period / dt)  # Number of steps
 
-# velocity = particles_ini.velocity  # There is residual momentum in the each direction i.e. the total momentum is not 0
 # print(np.median(velocity[:, 0]))
 # print(np.sum(velocity[:, 0]))
-# position = particles_ini.position
-# mass = particles_ini.mass
+position = particles_ini.position
+mass = particles_ini.mass
+velocity = particles_ini.velocity  # There is residual momentum in the each direction i.e. the total momentum is not 0
+
+
+evolution_loop(N=number_particles,m=mass,r=position,v=velocity,boundary_size=boundary,end_time=200)
+
 
 # position_matrix = np.empty((n, step, 3))  # Initialize position matrix to store positions at each time step
 
