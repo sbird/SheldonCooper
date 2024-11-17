@@ -134,7 +134,7 @@ def evolution_loop(N,end_time,m,r,v,boundary_size,visualize=True):
     tracking_frequency = 10  # Frequency for calculating the parameters
     # dt_array = []
     while(1):
-        if s%tracking_frequency==0 and s>20:
+        if s%tracking_frequency==0:
             # energy, distance = total_energy(mass,position,velocity)
             # energy_list += [energy]
             # relative_positions += [distance]
@@ -148,9 +148,10 @@ def evolution_loop(N,end_time,m,r,v,boundary_size,visualize=True):
             acc.append(np.zeros(3))
         acc=np.array(acc)
         acceleration = acc_cal(position, mass, acc, box_size=boundary_size) 
-        dt = set_t(velocity, acceleration, coeff=1e-3)
+        # dt = set_t(velocity, acceleration, coeff=1e1)
+        # print(dt)
         # dt_array += [dt]
-        # dt = 0.01
+        dt = 0.02
 
         # Update velocity and position using half-step method
         velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity
