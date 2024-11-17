@@ -78,9 +78,12 @@ def subdivide_node(node):
 # Determine the octant index for a given position
 def get_octant_index(node, position):
     index = 0
-    if position[0] >= node.center[0]: index += 4
-    if position[1] >= node.center[1]: index += 2
-    if position[2] >= node.center[2]: index += 1
+    if position[0] >= node.center[0]: 
+        index += 4
+    if position[1] >= node.center[1]: 
+        index += 2
+    if position[2] >= node.center[2]: 
+        index += 1
     return index
 
 # Compute the center of a child node based on the parent's center and index
@@ -107,7 +110,7 @@ def calculate_force(par, mass, acc, position, node, theta=0.5, coe=2e-3):
         force = np.zeros(3)
         for child in node.children:
             if child is not None:
-                force += calculate_force(par, mass, acc, position, child, num_par, theta, coe)
+                force += calculate_force(par, mass, acc, position, child, theta, coe)
         return force
 
 # Print the structure of the octree
@@ -124,23 +127,21 @@ def print_tree(node, depth=0):
             print_tree(child, depth + 1)
 
 def acc_cal(position, mass, acc, box_size):
-   root = OctreeNode([0] * 3, box_size)
-   num_particles=len(mass)
-   for particle in range(num_particles):
+    root = OctreeNode([0] * 3, box_size)
+    num_particles=len(mass)
+    for particle in range(num_particles):
         if position[particle][0]>=-box_size/2 and position[particle][0]<box_size/2 and\
         position[particle][1]>=-box_size/2 and position[particle][1]<box_size/2 and\
         position[particle][2]>=-box_size/2 and position[particle][2]<box_size/2:
             insert_particle(root, mass, position, particle)
-   for particle in range(num_particles):
+    for particle in range(num_particles):
         if position[particle][0]>=-box_size/2 and position[particle][0]<box_size/2 and\
         position[particle][1]>=-box_size/2 and position[particle][1]<box_size/2 and\
         position[particle][2]>=-box_size/2 and position[particle][2]<box_size/2:
             acc[particle]= calculate_force(particle, mass[particle], acc[particle], position[particle], root)
         else:
             acc[particle]=0
-   return acc
-  
-         
+    return acc
 
 if __name__ == "__main__":
     num_particles = 100
