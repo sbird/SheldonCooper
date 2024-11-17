@@ -104,6 +104,9 @@ class Particles_ini:
 
         if init_method == 'plummer':
             self.position, self.velocity = plummer_ini_conditions(n=n, boundary_size=boundary_size, mass=mass)
+
+            if diff_mass:
+                print('Warning: plummer initial conditions do not support different masses!')
         elif init_method == 'boltzmann':
             self.position = boltzmann_ini_positions(n=n, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos)
             self.velocity = boltzmann_ini_velocities(n=n, Temperature=Temperature, mass=mass)
