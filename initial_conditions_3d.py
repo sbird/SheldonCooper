@@ -47,7 +47,7 @@ def plummer_ini_conditions(n, boundary_size, mass):
 
     valid_r = r < boundary_size / 2
     while not np.all(valid_r):
-        print(np.sum(~valid_r), "particles are outside the boundary")
+        # print(np.sum(~valid_r), "particles are outside the boundary")
         X1[~valid_r] = np.random.uniform(0, 1, np.sum(~valid_r))  # get the ones that do not satisfy the condition
         k = (X1 ** (-2 / 3) - 1) ** (-1 / 2)
         r = k * a

@@ -4,10 +4,12 @@ from sc_time_evolution import evolve_position, evolve_velocity
 from Force_Nbody import cal_gforce
 from plot_3D import visualization
 from bound_binary import choose_initial_condition, evolution_loop
-from Tree_Force_Nbody_8children import calculate_force
+from Tree_Force_Nbody_8children import acc_cal
+import sys
+sys.setrecursionlimit(100000000)
 
 
-number_particles = 5
+number_particles = 100
 boundary = 1e-5
 
 particles_ini = Particles_ini(n=number_particles, boundary_size=boundary, init_method='plummer', mu=0, sigma_pos=50, Temperature=1e20, mass=1000, diff_mass=False) 
@@ -35,7 +37,7 @@ mass = particles_ini.mass
 velocity = particles_ini.velocity  # There is residual momentum in the each direction i.e. the total momentum is not 0
 
 
-evolution_loop(N=number_particles,m=mass,r=position,v=velocity,boundary_size=boundary,end_time=200)
+evolution_loop(N=number_particles,m=mass,r=position,v=velocity,boundary_size=boundary,end_time=10)
 
 
 # position_matrix = np.empty((n, step, 3))  # Initialize position matrix to store positions at each time step
