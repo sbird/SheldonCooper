@@ -135,7 +135,7 @@ def acc_cal(position, mass, acc, box_size):
         if position[particle][0]>=-box_size/2 and position[particle][0]<box_size/2 and\
         position[particle][1]>=-box_size/2 and position[particle][1]<box_size/2 and\
         position[particle][2]>=-box_size/2 and position[particle][2]<box_size/2:
-            acc[particle]= calculate_force(particle, mass[particle], acc[particle], position[particle], root, num_particles)
+            acc[particle]= calculate_force(particle, mass[particle], acc[particle], position[particle], root)
         else:
             acc[particle]=0
    return acc
