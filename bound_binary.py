@@ -169,8 +169,8 @@ def evolution_loop(N,end_time,m,r,v,boundary_size,visualize=True):
             break
 
 # Visualization of position evolution
-    if visualize == True:
-        visualization(position=position_matrix_binary, lim_bound=(-boundary_size,boundary_size), savegif=True, fname='flower.gif') # remember to divide boundary by 2 later
+    if visualize:
+        visualization(position=position_matrix_binary, lim_bound=(-boundary_size/2,boundary_size/2), savegif=True, fname='flower.gif') # remember to divide boundary by 2 later
     else:
         return position_matrix_binary
     # print(dt_array)
