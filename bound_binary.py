@@ -8,6 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from constants import G as const_G  # Gravitational constant
 from plot_3D import visualization   # Importing 3D plotting function for visualization
+from Tree_Force_Nbody_8children import acc_cal
 
 # N = 10
 
@@ -133,7 +134,7 @@ def evolution_loop(N,end_time,m,r,v,boundary_size,visualize=True):
     tracking_frequency = 10  # Frequency for calculating the parameters
     # dt_array = []
     while(1):
-        if s%tracking_frequency==0:
+        if s%tracking_frequency==0 and s>20:
             # energy, distance = total_energy(mass,position,velocity)
             # energy_list += [energy]
             # relative_positions += [distance]
@@ -141,15 +142,20 @@ def evolution_loop(N,end_time,m,r,v,boundary_size,visualize=True):
             # angular_momentum_list += [ang_mom]
             position_matrix_binary = np.append(position_matrix_binary,position[:, np.newaxis, :],axis=1)
         # Store current velocity, acceleration, and position for each particle at time step s
-        acceleration = cal_gforce(position, mass)                           # Calculate acceleration
-        # dt = set_t(velocity, acceleration, coeff=1e-3)
+        # acceleration = acc_cal(position, mass)                           # Calculate acceleration
+        acc = []
+        for i in range(N): 
+            acc.append(np.zeros(3))
+        acc=np.array(acc)
+        acceleration = acc_cal(position, mass, acc, box_size=boundary_size) 
+        dt = set_t(velocity, acceleration, coeff=1e-3)
         # dt_array += [dt]
-        dt = 0.01
+        # dt = 0.01
 
         # Update velocity and position using half-step method
         velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity
         position = evolve_position(position, velocity, dt)               # Update position
-        acceleration = cal_gforce(position, mass)                        # Recalculate force
+        acceleration = acc_cal(position, mass, acc, box_size=boundary_size)                        # Recalculate force
         velocity = evolve_velocity(velocity_temp, acceleration, dt / 2)  # Finalize velocity
         # print(velocity,acceleration)
         # Update total time and step count
