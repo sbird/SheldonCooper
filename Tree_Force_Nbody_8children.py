@@ -89,7 +89,7 @@ def get_child_center(center, size, index):
     return center + offset
 
 # Calculate gravitational force on a particle using the Barnes-Hut method
-def calculate_force(par, mass, acc, position, node, num_par, theta=0.5, coe=2e-3):
+def calculate_force(par, mass, acc, position, node, theta=0.5, coe=2e-3):
     if node is None or node.mass == 0 or (node.is_leaf() and node.particle == par):
         return np.zeros(3)
 
@@ -98,7 +98,7 @@ def calculate_force(par, mass, acc, position, node, num_par, theta=0.5, coe=2e-3
 
     length_acc = np.linalg.norm(acc)
     if length_acc != 0:
-        theta = np.sqrt(coe * length_acc / (const_G * num_par * mass)) * distance
+        theta = np.sqrt(coe * length_acc / (const_G * node.mass)) * distance
     if node.is_leaf() or (node.size / distance < theta):
         # Treat the node as a single mass
         return const_G * node.mass * displacement / distance**3
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     root = OctreeNode([0] * 3, box_size)
 
     # Generate particles with random positions
-    #particles = []
+    particles = []
     position=[]
     mass = []
     acc = []
@@ -156,10 +156,11 @@ if __name__ == "__main__":
         mass.append(1.0)
         acc.append(np.zeros(3))
         position.append(np.random.uniform(-box_size/2+1, box_size/2, 3))
-        #particles.append(Particle(1.0, position, np.zeros(3), np.zeros(3), i))
+        particles.append(Particle(1.0, position, np.zeros(3), np.zeros(3), i))
     position=np.array(position)
     mass=np.array(mass)
     acc=np.array(acc)
+    particles=np.array(particles)
 
     # Insert particles into the octree
     for particle in range(num_particles):
@@ -184,9 +185,9 @@ if __name__ == "__main__":
 
     #print("Calculating forces using O(N²) method...")
     #start_time = time.time()
-    #for particle in range(num_particles):
-        #particle.cal_gforce(particles)
-    #elapsed_time = time.time() - start_time
+    #for particle in particles:
+        #print(particle,":",particle.cal_gforce(particles))
+    # = time.time() - start_time
     #print(f"O(N²) Force Calculation Time = {elapsed_time:.5f} seconds")
 
     # Uncomment to print the octree structure
