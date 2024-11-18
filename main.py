@@ -18,7 +18,7 @@ sys.setrecursionlimit(100000000)
 
 
 # Constants
-number_particles = 1000
+number_particles = 100
 boundary_size = 1e-2
 init_method = 'plummer'
 mu = 0
@@ -26,8 +26,8 @@ sigma_pos = 5e-3
 Temperature = 1e62
 particle_mass = 1e3
 
-delta_t = 500  # Time step in years that will be stored
-total_time = 100000  # Total time in years
+delta_t = 1000  # Time step in years that will be stored
+total_time = 1000000  # Total time in years
 total_timestep = int(total_time / delta_t)  # Number of steps
 current_time = 0  # Current time in years
 tracking_timestep = 0  # Time interval to track when the positions will be saved
@@ -43,8 +43,11 @@ position_matrix = np.empty((number_particles, total_timestep, 3))  # Initialize 
 # Evolve the system using the Tree-Force algorithm
 while(current_time < total_time):
     acceleration = acc_cal(position, mass, acceleration, box_size=boundary_size) # Calculate acceleration
-    dt = set_t(velocity, acceleration, coeff=1e1)
-    dt = min(50, dt)
+    dt = set_t(velocity, acceleration, coeff=1e-2)
+    print(dt)
+    dt = min(1000, dt)
+    dt = max(50, dt)
+    # dt = 200
 
     # Update velocity and position using half-step method
     velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity

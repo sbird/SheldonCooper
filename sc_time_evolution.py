@@ -16,7 +16,7 @@ import numpy as np
 def set_t(v, a, coeff=1e-3):
     len_v = np.array([np.linalg.norm(v[i]) for i in range(len(v))])
     len_a = np.array([np.linalg.norm(a[i]) for i in range(len(a))])
-    dt    = coeff * np.min(len_v) / np.max(len_a)
+    dt    = coeff * np.nanmin(len_v / len_a)
     return dt
 
 # Evolve velocity function
