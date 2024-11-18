@@ -18,8 +18,8 @@ sys.setrecursionlimit(100000000)
 
 
 # Constants
-number_particles = 200
-boundary_size = 1e-3
+number_particles = 1000
+boundary_size = 1e-2
 init_method = 'plummer'
 mu = 0
 sigma_pos = 5e-3
@@ -44,7 +44,7 @@ position_matrix = np.empty((number_particles, total_timestep, 3))  # Initialize 
 while(current_time < total_time):
     acceleration = acc_cal(position, mass, acceleration, box_size=boundary_size) # Calculate acceleration
     dt = set_t(velocity, acceleration, coeff=1e1)
-    dt = min(20, dt)
+    dt = min(50, dt)
 
     # Update velocity and position using half-step method
     velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity
@@ -61,9 +61,9 @@ while(current_time < total_time):
         tracking_timestep += 1  # Increment the tracking timestep counter
 
 if init_method == 'plummer':
-    fname = f'N{number_particles}_logM{np.log10(particle_mass):.1f}_plummer.gif'
+    fname = f'logT{np.log10(total_time):.1f}_N{number_particles}_logM{np.log10(particle_mass):.1f}_plummer.gif'
 elif init_method == 'boltzmann':
-    fname= f'N{number_particles}_logM{np.log10(particle_mass):.1f}_logT{np.log10(Temperature):.1f}_logSigma{np.log10(sigma_pos):.1f}.gif'
+    fname= f'logT{np.log10(total_time):.1f}_N{number_particles}_logM{np.log10(particle_mass):.1f}_logTemp{np.log10(Temperature):.1f}_logSigma{np.log10(sigma_pos):.1f}.gif'
 
 # Visualize the particle motion in 3D
 visualization(position_matrix, lim_bound=(-boundary_size/2, boundary_size/2), savegif=True, fname=fname)  # Call the visualization function to animate the particle motion
