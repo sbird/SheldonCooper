@@ -98,7 +98,7 @@ class Particles_ini:
         #but we tried to choose the aprroximate maximum possible size of a primordial galaxy formaing gas cloud
         
         if diff_mass:
-            self.mass = np.random.randint(1, 9, size=n) * 1e6
+            self.mass = np.random.randint(1, 9, size=n) * 1e3
         else:
             self.mass = np.ones(n) * mass
 

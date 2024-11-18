@@ -151,7 +151,7 @@ def evolution_loop(N,end_time,m,r,v,boundary_size,visualize=True):
         # dt = set_t(velocity, acceleration, coeff=1e1)
         # print(dt)
         # dt_array += [dt]
-        dt = 0.02
+        dt = 0.01
 
         # Update velocity and position using half-step method
         velocity_temp = evolve_velocity(velocity, acceleration, dt / 2)  # Half-step velocity
