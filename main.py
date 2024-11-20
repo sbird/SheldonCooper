@@ -43,10 +43,10 @@ position_matrix = np.empty((number_particles, total_timestep, 3))  # Initialize 
 # Evolve the system using the Tree-Force algorithm
 while(current_time < total_time):
     acceleration = acc_cal(position, mass, acceleration, box_size=boundary_size) # Calculate acceleration
-    dt = set_t(velocity, acceleration, coeff=1e-2)
+    dt = set_t(velocity, acceleration, coeff=5e-3)
     print(dt)
-    dt = min(1000, dt)
-    dt = max(50, dt)
+    dt = min(100, dt)
+    dt = max(10, dt)
     # dt = 200
 
     # Update velocity and position using half-step method
