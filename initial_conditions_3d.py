@@ -83,36 +83,57 @@ def plummer_ini_conditions(n, boundary_size, mass):
     u = np.sqrt(V ** 2 - w ** 2) * np.cos(2 * np.pi * X7)
     v = np.sqrt(V ** 2 - w ** 2) * np.sin(2 * np.pi * X7)
 
+    w -= np.mean(w)
+    u -= np.mean(u)
+    v -= np.mean(v)
+
     ini_positions = np.column_stack((x, y, z))  # each row represents the position of a particle (x, y, z)
     ini_velocities = np.column_stack((u, v, w))  # each row represents the velocity of a particle (u, v, w)
 
     return ini_positions, ini_velocities
 
 
+
 #Now, we make a class to store all of these initial conditions (mass, positions, velocities)
 class Particles_ini:
-    def __init__(self, n=100, boundary_size=100, init_method='plummer', mu=0, sigma_pos=50, Temperature=1e20, mass=1, diff_mass=True):
+    def __init__(self, n=100, boundary_size=1, init_method='plummer', mu=0, sigma_pos=50, Temperature=1e20, mass=1.):
         #calling the position_ini funtion to generate the location of each particle in xyz coordinates,
         #the result is in the shape of (N, 3)
         #This size also depends on the phase of galaxy formation,
         #but we tried to choose the aprroximate maximum possible size of a primordial galaxy formaing gas cloud
+        if isinstance(n, int):
+            assert isinstance(mass, float) or isinstance(mass, int), "mass should be a scalar if there is only one type of particle"
+            self.mass = np.ones * mass
+            self.total_num = n
+
+            if init_method == 'plummer':
+                self.position, self.velocity = plummer_ini_conditions(n=n, boundary_size=boundary_size, mass=mass)
+
+            # if diff_mass:
+            #     print('Warning: plummer initial conditions do not support different masses!')
+            elif init_method == 'boltzmann':
+                self.position = boltzmann_ini_positions(n=n, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos)
+                self.velocity = boltzmann_ini_velocities(n=n, Temperature=Temperature, mass=mass)
+            else: 
+                raise ValueError("Invalid initial conditions method")
         
-        if diff_mass:
-            self.mass = np.random.randint(1, 9, size=n) * 1e3
-        else:
-            self.mass = np.ones(n) * mass
+        elif isinstance(n, np.ndarray):
+            assert n.shape == mass.shape, "n and mass should have the same shape"
+            self.mass = np.array([m for num, m in zip(n, mass) for _ in range(num)])
+            self.total_num = np.sum(n)
 
-        if init_method == 'plummer':
-            self.position, self.velocity = plummer_ini_conditions(n=n, boundary_size=boundary_size, mass=mass)
-
-            if diff_mass:
-                print('Warning: plummer initial conditions do not support different masses!')
-        elif init_method == 'boltzmann':
-            self.position = boltzmann_ini_positions(n=n, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos)
-            self.velocity = boltzmann_ini_velocities(n=n, Temperature=Temperature, mass=mass)
-        else: 
-            raise ValueError("Invalid initial conditions method")
-
+            self.position = np.zeros((np.sum(n), 3))
+            self.velocity = np.zeros((np.sum(n), 3))
+            if init_method == 'plummer':
+                for i, num in enumerate(n):
+                    self.position[np.sum(n[:i]):np.sum(n[:i+1]), :], self.velocity[np.sum(n[:i]):np.sum(n[:i+1]), :] = plummer_ini_conditions(n=num, boundary_size=boundary_size, mass=mass[i])
+            elif init_method == 'boltzmann':
+                for i, num in enumerate(n):
+                    self.position[np.sum(n[:i]):np.sum(n[:i+1]), :] = boltzmann_ini_positions(n=num, boundary_size=boundary_size, mu=mu, sigma_pos=sigma_pos)
+                    self.velocity[np.sum(n[:i]):np.sum(n[:i+1]), :] = boltzmann_ini_velocities(n=num, Temperature=Temperature, mass=mass[i])
+            else:
+                raise ValueError("Invalid initial conditions method")
+        
 
     def __getitem__(self, index):
         return {
@@ -168,13 +189,20 @@ if __name__ == "__main__":
     # ax[1].set_ylabel('rho(r)')
     # plt.savefig('plummer_ini_conditions.png')
     # plt.show()
-    n = 10000
-    boundary_size = 10
-    mass = 1
-    positions, velocities = plummer_ini_conditions(n, boundary_size, mass)
-    print(positions)
-    print(velocities)
+
+    # n = 10000
+    # boundary_size = 10
+    # mass = 1
+    # positions, velocities = plummer_ini_conditions(n, boundary_size, mass)
+    # print(positions)
+    # print(velocities)
     # distances = np.sqrt(positions[:, 0] ** 2 + positions[:, 1] ** 2 + positions[:, 2] ** 2)
     # plt.hist(distances, bins=100)
     # plt.axvline(boundary_size/2)
     # plt.show()
+
+    pars = Particles_ini(n=np.array([3, 2]), mass=np.array([1, 10]))
+    print(pars.position.shape)
+    print(pars.mass)
+    print(pars.velocity)
+    print(np.sum(pars.mass[:, np.newaxis] * pars.velocity, axis=0))
