@@ -7,7 +7,7 @@ from initial_conditions_3d import boltzmann_ini_positions
 
 
 
-def visualization(position, lim_bound=(-100, 100), window_size=300, interval=30, frame_rotation=0., savegif=False, fname=None):
+def visualization(position, mass, lim_bound=(-100, 100), window_size=300, interval=30, frame_rotation=0., savegif=False, fname=None):
     # Set up figure & 3D axis for animation
     fig = plt.figure()
     ax = fig.add_axes([0, 0, 1, 1], projection='3d')
@@ -15,7 +15,8 @@ def visualization(position, lim_bound=(-100, 100), window_size=300, interval=30,
 
     # choose a different color for each particle
     num_particles = position.shape[0]
-    colors = plt.cm.jet(np.linspace(0, 1, num_particles))
+    # colors = plt.cm.jet(np.linspace(0, 1, num_particles))
+    colors = plt.cm.jet(mass/np.max(mass))
 
     # set up lines and points for each particle
     lines = sum([ax.plot([], [], [], '-', c=colors[i]) for i in range(num_particles)], [])
